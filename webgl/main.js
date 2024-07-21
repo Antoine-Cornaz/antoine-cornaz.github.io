@@ -50,6 +50,25 @@ async function main() {
     const resources = await load_resources(regl)
     console.log(resources)
 
+    const drawTriangle = regl({
+        frag: `
+              void main() {
+                gl_FragColor = vec4(1, 0, 0, 1);
+              }`,
+
+        vert: `
+              attribute vec2 position;
+              void main() {
+                gl_Position = vec4(position, 0, 1);
+              }`,
+
+        attributes: {
+            position: [[0.5, -0.5], [-0.5, -0.5], [0, 0.5]]
+        },
+
+        count: 3
+    })
+
 
     // Set clear color to sky, fully opaque
     const skyColor = colors.sky.concat(1.0);
@@ -57,5 +76,8 @@ async function main() {
         regl.clear({
             color: [...skyColor],
         });
+
+        drawTriangle()
+
     });
 }
