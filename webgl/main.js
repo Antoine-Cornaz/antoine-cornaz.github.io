@@ -1,24 +1,19 @@
+import { createREGL } from "../lib/regl.js"
 import { colors } from "./colors.js";
 
 
 main();
 
-function main() {
-    const canvas = document.querySelector("#glcanvas");
-    // Initialize the GL context
-    const gl = canvas.getContext("webgl");
+async function main() {
 
-    // Only continue if WebGL is available and working
-    if (gl === null) {
-        alert(
-            "Unable to initialize WebGL. Your browser or machine may not support it.",
-        );
-        return;
-    }
+
+    const regl = createREGL({})
 
     // Set clear color to sky, fully opaque
     const skyColor = colors.sky.concat(1.0);
-    gl.clearColor(...skyColor);
-    // Clear the color buffer with specified clear color
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    regl.frame((frame) => {
+        regl.clear({
+            color: [...skyColor],
+        });
+    });
 }
