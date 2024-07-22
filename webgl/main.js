@@ -27,47 +27,28 @@ async function main() {
 
     const listDraw = []
 
-    const frag = await shaders["basic.frag.glsl"]
-    const vert = await shaders["basic.vert.glsl"]
-
-    const drawTest = regl({
-        frag: await shaders["phong_shadow.frag.glsl"],
-
-        vert: await shaders["phong_shadow.vert.glsl"],
-
-        attributes: {
-            vertex_position: objects["wall.obj"].vertex_positions,
-            vertex_normal: objects["wall.obj"].vertex_normals
-        },
-
-        uniforms: {
-            mat_mvp: regl.prop("u_mat_mvp"),
-            mat_model_view: regl.prop("mat_model_view"),
-            u_mat_mvp: regl.prop("u_mat_mvp"),
-            mat_normals_to_view: mat3.create(),// no weird transformation
-            u_color: regl.prop("u_color"),
-            light_position: vec3.fromValues(3, 2, 0),
-            light_color: colors.white.slice(0, 3)
-        },
-
-        elements: objects["wall.obj"].faces
-
-    })
+    const frag = await shaders["phong_shadow.frag.glsl"]
+    const vert = await shaders["phong_shadow.vert.glsl"]
 
     Object.keys(objects).forEach(key => {
         const obj = objects[key];
         const draw = regl({
             frag: frag,
-
             vert: vert,
 
             attributes: {
-                a_position: obj.vertex_positions
+                vertex_position: obj.vertex_positions,
+                vertex_normal: obj.vertex_normals
             },
 
             uniforms: {
+                mat_mvp: regl.prop("u_mat_mvp"),
+                mat_model_view: regl.prop("mat_model_view"),
                 u_mat_mvp: regl.prop("u_mat_mvp"),
-                u_color: regl.prop("u_color")
+                mat_normals_to_view: mat3.create(),// no weird transformation
+                u_color: regl.prop("u_color"),
+                light_position: vec3.fromValues(3, 2, 0),
+                light_color: colors.white.slice(0, 3)
             },
 
             elements: obj.faces
@@ -109,6 +90,7 @@ async function main() {
         const mvp = mat4.multiplyMultiple(mat4.create(), projection, mv);
 
         const barrier_props = {
+            mat_model_view: mv,
             u_mat_mvp: mvp,
             u_color: colors.barrier,
         }
@@ -120,11 +102,13 @@ async function main() {
         }
 
         const floor_props = {
+            mat_model_view: mv,
             u_mat_mvp: mvp,
             u_color: colors.floor
         }
 
         const sea_props = {
+            mat_model_view: mv,
             u_mat_mvp: mvp,
             u_color: colors.sea
         }
@@ -134,9 +118,8 @@ async function main() {
         });
 
         listDraw[0](barrier_props)
-
+        listDraw[1](wall_props)
         listDraw[2](sea_props)
         listDraw[3](floor_props)
-        drawTest(wall_props)
     });
 }

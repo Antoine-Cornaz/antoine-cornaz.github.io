@@ -10,7 +10,7 @@ uniform vec3 light_color;
 uniform vec4 u_color;
 
 void main() {
-    float material_ambient = 0.8;
+    float material_ambient = 0.6;
     float material_shininess = 12.;
     vec3 material_color = u_color.xyz;
 
@@ -32,8 +32,7 @@ void main() {
     float spec = ceil(nl) * pow(nh, material_shininess);
 
     // ambient contribution
-    vec3 color = light_color * material_color * material_ambient
-    * attenuation_factor;
+    vec3 color = light_color * material_color * material_ambient;
 
     // add diff and spec contributions
     color += light_color * material_color
