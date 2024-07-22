@@ -11,13 +11,14 @@ export async function load_resources(regl) {
 
     const shaders_to_load = [
         "basic.vert.glsl", "basic.frag.glsl", "phong_shadow.frag.glsl", "phong_shadow.vert.glsl",
+
     ]
     for(const shader_name of shaders_to_load) {
         shaders[shader_name] = load_text(`../shaders/${shader_name}`)
     }
 
     const meshes_to_load = [
-        "barrier.obj", "wall.obj", "sea.obj", "floor.obj"
+        "barrier.obj", "wall.obj", "sea.obj", "floor.obj", "boat_sail.obj", "boat_wood.obj"
     ]
     for(const mesh_name of meshes_to_load) {
         object[mesh_name] = icg_mesh_load_obj(`./objects/${mesh_name}`)

@@ -108,15 +108,23 @@ async function main() {
     const skyColor = colors.sky;
     const lightPos = vec4.fromValues(4, 6, 10, 1);
 
+    const mat_translation_boat = mat4.fromTranslation(mat4.create(), vec3.fromValues(-41, -13, -140))
+
+    const mv = mat4.mul(mat4.create(), getView(), model)
+    let mat_normals_to_view = mat3.create();
+    mat3.invert(mat_normals_to_view,
+        mat3.transpose(mat_normals_to_view,
+            mat3.fromMat4(mat_normals_to_view,
+                mv)))
+
+    const mv_boat = mat4.mul(mat4.create(), mv, mat_translation_boat)
     regl.frame(() => {
 
-        const mv = mat4.mul(mat4.create(), getView(), model)
+
         const mvp = mat4.multiplyMultiple(mat4.create(), projection, mv);
-        let mat_normals_to_view = mat3.create();
-        mat3.invert(mat_normals_to_view,
-            mat3.transpose(mat_normals_to_view,
-                mat3.fromMat4(mat_normals_to_view,
-                    mv)))
+        const mvp_boat = mat4.multiplyMultiple(mat4.create(), projection, mv_boat);
+
+
 
         const l = vec4.transformMat4(vec4.create(), lightPos, mv)
         const lightPosFromCamera = vec3.fromValues(l[0], l[1], l[2]);
@@ -154,6 +162,22 @@ async function main() {
             u_color: colors.sea
         }
 
+        const boat_wood_props = {
+            light_position: lightPosFromCamera,
+            mat_normals_to_view: mat_normals_to_view,
+            mat_model_view: mv_boat,
+            u_mat_mvp: mvp_boat,
+            u_color: colors.wood
+        }
+
+        const boat_sail_props = {
+            light_position: lightPosFromCamera,
+            mat_normals_to_view: mat_normals_to_view,
+            mat_model_view: mv_boat,
+            u_mat_mvp: mvp_boat,
+            u_color: colors.white
+        }
+
         regl.clear({
             color: [...skyColor],
         });
@@ -162,5 +186,7 @@ async function main() {
         listDraw[1](wall_props)
         drawSea(sea_props)
         listDraw[3](floor_props)
+        listDraw[4](boat_sail_props)
+        listDraw[5](boat_wood_props)
     });
 }

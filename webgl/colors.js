@@ -14,6 +14,7 @@ export const colors = {
     barrier: hexToRgb('#ffffff'), // White
     wall: hexToRgb('#ce702d'), // Orange
     floor: hexToRgb('#ce862d'), // Light Orange
-    lightingColor: hexToRgb('#FFFFFF')
+    lightingColor: hexToRgb('#FFFFFF'),
+    wood: hexToRgb('#A47449'),
 };
 
