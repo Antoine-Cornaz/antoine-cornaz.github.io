@@ -110,19 +110,21 @@ async function main() {
 
     const mat_translation_boat = mat4.fromTranslation(mat4.create(), vec3.fromValues(-41, -13, -140))
 
-    const mv = mat4.mul(mat4.create(), getView(), model)
-    let mat_normals_to_view = mat3.create();
-    mat3.invert(mat_normals_to_view,
-        mat3.transpose(mat_normals_to_view,
-            mat3.fromMat4(mat_normals_to_view,
-                mv)))
 
-    const mv_boat = mat4.mul(mat4.create(), mv, mat_translation_boat)
-    regl.frame(() => {
+    regl.frame((frame) => {
+        const mv = mat4.mul(mat4.create(), getView(), model)
+        let mat_normals_to_view = mat3.create();
+        mat3.invert(mat_normals_to_view,
+            mat3.transpose(mat_normals_to_view,
+                mat3.fromMat4(mat_normals_to_view,
+                    mv)))
 
+        const mat_rotation_boat = mat4.fromZRotation(mat4.create(), 0.2*Math.sin(frame.time));
 
+        const mv_boat = mat4.multiplyMultiple(mat4.create(), mv, mat_translation_boat, mat_rotation_boat);
         const mvp = mat4.multiplyMultiple(mat4.create(), projection, mv);
         const mvp_boat = mat4.multiplyMultiple(mat4.create(), projection, mv_boat);
+
 
 
 
