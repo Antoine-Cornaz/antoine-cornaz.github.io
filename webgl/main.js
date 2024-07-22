@@ -27,6 +27,29 @@ async function main() {
 
     const listDraw = []
 
+    const drawSea = regl({
+        frag: await shaders["basic.frag.glsl"],
+        vert: await shaders["basic.vert.glsl"],
+
+        attributes: {
+            vertex_position: objects["sea.obj"].vertex_positions,
+            vertex_normal: objects["sea.obj"].vertex_normals
+        },
+
+        uniforms: {
+            mat_mvp: regl.prop("u_mat_mvp"),
+            mat_model_view: regl.prop("mat_model_view"),
+            u_mat_mvp: regl.prop("u_mat_mvp"),
+            mat_normals_to_view: regl.prop("mat_normals_to_view"),
+            u_color: regl.prop("u_color"),
+            light_position: regl.prop("light_position"),
+            light_color: colors.lightingColor.slice(0, 3)
+        },
+
+        elements: objects["sea.obj"].faces
+
+    })
+
     const frag = await shaders["phong_shadow.frag.glsl"]
     const vert = await shaders["phong_shadow.vert.glsl"]
 
@@ -45,7 +68,7 @@ async function main() {
                 mat_mvp: regl.prop("u_mat_mvp"),
                 mat_model_view: regl.prop("mat_model_view"),
                 u_mat_mvp: regl.prop("u_mat_mvp"),
-                mat_normals_to_view: regl.prop("mat_normals_to_view"),// TODO find transformation
+                mat_normals_to_view: regl.prop("mat_normals_to_view"),
                 u_color: regl.prop("u_color"),
                 light_position: regl.prop("light_position"),
                 light_color: colors.lightingColor.slice(0, 3)
@@ -137,7 +160,7 @@ async function main() {
 
         listDraw[0](barrier_props)
         listDraw[1](wall_props)
-        listDraw[2](sea_props)
+        drawSea(sea_props)
         listDraw[3](floor_props)
     });
 }
