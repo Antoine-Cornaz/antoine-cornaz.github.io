@@ -46,11 +46,13 @@ function changeViewDirection(x, y){
 
     console.log('Mouse entered the canvas at:', { x: x, y: y });
 
-    const theta = -(x-0.5)
+    const theta0 = 1.7
+    const theta = -(x-0.5) + theta0
     const phi = -(y-0.5)
 
-    const eye = vec3.fromValues(50, 0, 0)
-    const center = vec3.fromValues(Math.cos(theta)*Math.cos(phi), Math.sin(theta)*Math.cos(phi), Math.sin(phi))
+    const eye = vec3.fromValues(0.38, -12, 3.34)
+    const direction = vec3.fromValues(Math.cos(theta)*Math.cos(phi), Math.sin(theta)*Math.cos(phi), Math.sin(phi))
+    const center = vec3.add(vec3.create(), eye, direction);
     const up = vec3.fromValues(0, 0,1)
 
 
@@ -224,25 +226,21 @@ async function main() {
 
     regl.frame((frame) => {
 
-        const x = Math.cos(frame.time/2)
-        const y = Math.sin(frame.time/2)
-
-
         const model = mat4.multiplyMultiple(mat4.create(),
 
             // The axe in blender are not the same as here.
             mat4.fromXRotation(mat4.create(), Math.PI/2),
 
-            mat4.fromYRotation(mat4.create(), frame.time/5),
-            mat4.fromTranslation(mat4.create(), vec3.fromValues(3, 0, 0))
+            //mat4.fromYRotation(mat4.create(), frame.time/5),
+            //mat4.fromTranslation(mat4.create(), vec3.fromValues(3, 0, 0))
         )
 
         const projection = perspective(
             mat4.create(),
-            Math.PI/2.0,
+            1.4,
             1,
             0.1,
-            100
+            500
         )
 
         const mv = mat4.mul(mat4.create(), view, model);
@@ -252,17 +250,12 @@ async function main() {
             u_mat_mvp: mvp
         })
 
-        const triangle_meshes_props = []
-        triangle_meshes_props.push({
-            u_mat_mvp: mvp
-        })
+
 
         regl.clear({
             color: [...skyColor],
         });
 
-
-        drawTriangle(triangle_meshes_props)
         drawBarrier(cube_meshes_props)
         drawWall(cube_meshes_props)
         drawSea(cube_meshes_props)
