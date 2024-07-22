@@ -42,6 +42,35 @@ async function load_resources(regl) {
     return resources
 }
 
+function handleMouseLeave(event) {
+    console.log('Mouse left the canvas at:', { x: event.clientX, y: event.clientY });
+    // You can add more logic here to handle the mouse leave event
+}
+
+function changeViewDirection(x, y){
+
+    console.log('Mouse entered the canvas at:', { x: x, y: y });
+
+    const theta = -(x-0.5)
+    const phi = -(y-0.5)
+
+    const alpha = 1
+
+    const eye = vec3.fromValues(0, 0, 0)
+    const center = vec3.fromValues(Math.cos(theta)*Math.cos(phi), Math.sin(theta)*Math.cos(phi), Math.sin(phi))
+    const up = vec3.fromValues(0, 0,1)
+
+
+    view = mat4.lookAt(
+        mat4.create(),
+        eye,
+        center,
+        up
+    )
+}
+
+let view
+
 
 main();
 
@@ -51,7 +80,17 @@ async function main() {
     const regl = createREGL({})
 
     const resources = await load_resources(regl)
-    const i = mat4.create();
+
+    changeViewDirection(0.5, 0.5)
+
+
+
+
+    const canvas_elem = document.getElementsByTagName('canvas')[0]
+    canvas_elem.addEventListener('mousemove', (event) => {
+        changeViewDirection(event.clientX / canvas_elem.width, event.clientY / canvas_elem.height)
+    });
+    canvas_elem.width
 
     const drawCube = regl({
         frag: `
@@ -96,7 +135,7 @@ async function main() {
               }`,
 
         attributes: {
-            position: [[0.5, -0.5], [-0.5, -0.5], [0, 0.5]]
+            position: [[1, -0.5, 2], [-0.5, -0.5, 3], [0, 0.5, 0]]
         },
 
         uniforms: {
@@ -113,21 +152,11 @@ async function main() {
 
     regl.frame((frame) => {
 
-        const x = Math.cos(frame.time)
-        const y = Math.sin(frame.time)
-
-        const eye = vec3.fromValues(x*4, y*3, 3)
-        const center = vec3.fromValues(0, 0, 0)
-        const up = vec3.fromValues(0, 0.0,0.8)
+        const x = Math.cos(frame.time/2)
+        const y = Math.sin(frame.time/2)
 
 
-
-        const view = mat4.lookAt(
-            mat4.create(),
-            eye,
-            center,
-            up
-        )
+        const model = mat4.fromTranslation(mat4.create(), vec3.fromValues(3, 0, 0))
 
         const projection = perspective(
             mat4.create(),
@@ -137,7 +166,8 @@ async function main() {
             100
         )
 
-        const mvp = mat4.mul(mat4.create(), projection, view);
+        const mv = mat4.mul(mat4.create(), view, model);
+        const mvp = mat4.mul(mat4.create(), projection, mv);
         const cube_meshes_props = []
         cube_meshes_props.push({
             u_mat_mvp: mvp
