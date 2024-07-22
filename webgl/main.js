@@ -22,7 +22,7 @@ async function load_resources(regl) {
     }
 
     const meshes_to_load = [
-        "cube.obj",
+        "barrier.obj", "mur.obj"
     ]
     for(const mesh_name of meshes_to_load) {
         resource_promises[mesh_name] = icg_mesh_load_obj(`./objects/${mesh_name}`)
@@ -42,11 +42,6 @@ async function load_resources(regl) {
     return resources
 }
 
-function handleMouseLeave(event) {
-    console.log('Mouse left the canvas at:', { x: event.clientX, y: event.clientY });
-    // You can add more logic here to handle the mouse leave event
-}
-
 function changeViewDirection(x, y){
 
     console.log('Mouse entered the canvas at:', { x: x, y: y });
@@ -54,9 +49,7 @@ function changeViewDirection(x, y){
     const theta = -(x-0.5)
     const phi = -(y-0.5)
 
-    const alpha = 1
-
-    const eye = vec3.fromValues(0, 0, 0)
+    const eye = vec3.fromValues(50, 0, 0)
     const center = vec3.fromValues(Math.cos(theta)*Math.cos(phi), Math.sin(theta)*Math.cos(phi), Math.sin(phi))
     const up = vec3.fromValues(0, 0,1)
 
@@ -69,6 +62,7 @@ function changeViewDirection(x, y){
     )
 }
 
+// The view mat4
 let view
 
 
@@ -92,10 +86,10 @@ async function main() {
     });
     canvas_elem.width
 
-    const drawCube = regl({
+    const drawBarrier = regl({
         frag: `
               void main() {
-                gl_FragColor = vec4(0.3, 0.6, 0, 1);
+                gl_FragColor = vec4(0.9, 0.96, 0.95, 1);
               }`,
 
         vert: `
@@ -108,14 +102,41 @@ async function main() {
 
         attributes: {
             //[0.5, -0.5], [-0.8, -0.9], [0, 0.5]
-            position: resources['cube.obj'].vertex_positions,
+            position: resources['barrier.obj'].vertex_positions,
         },
 
         uniforms: {
             u_mat_mvp: regl.prop("u_mat_mvp"),
         },
 
-        elements: resources['cube.obj'].faces
+        elements: resources['barrier.obj'].faces
+
+    })
+
+    const drawMur = regl({
+        frag: `
+              void main() {
+                gl_FragColor = vec4(0.8, 0.6, 0.8, 1);
+              }`,
+
+        vert: `
+              attribute vec3 position;
+              uniform mat4 u_mat_mvp;
+              void main() {
+                vec4 pos = u_mat_mvp * vec4(position, 1.0);
+                gl_Position = pos;
+              }`,
+
+        attributes: {
+            //[0.5, -0.5], [-0.8, -0.9], [0, 0.5]
+            position: resources['mur.obj'].vertex_positions,
+        },
+
+        uniforms: {
+            u_mat_mvp: regl.prop("u_mat_mvp"),
+        },
+
+        elements: resources['mur.obj'].faces
 
     })
 
@@ -156,7 +177,14 @@ async function main() {
         const y = Math.sin(frame.time/2)
 
 
-        const model = mat4.fromTranslation(mat4.create(), vec3.fromValues(3, 0, 0))
+        const model = mat4.multiplyMultiple(mat4.create(),
+
+            // The axe in blender are not the same as here.
+            mat4.fromXRotation(mat4.create(), Math.PI/2),
+
+            mat4.fromYRotation(mat4.create(), frame.time),
+            mat4.fromTranslation(mat4.create(), vec3.fromValues(3, 0, 0))
+        )
 
         const projection = perspective(
             mat4.create(),
@@ -184,6 +212,7 @@ async function main() {
 
 
         drawTriangle(triangle_meshes_props)
-        drawCube(cube_meshes_props)
+        drawBarrier(cube_meshes_props)
+        drawMur(cube_meshes_props)
     });
 }
