@@ -4,8 +4,6 @@ let view
 
 export function changeViewDirection(x, y){
 
-    console.log('Mouse entered the canvas at:', { x: x, y: y });
-
     const theta0 = 1.7
     const theta = -(x-0.5) + theta0
     const phi = -(y-0.5)

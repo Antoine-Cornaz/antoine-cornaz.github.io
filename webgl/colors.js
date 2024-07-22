@@ -8,6 +8,7 @@ const hexToRgb = (hex) => {
 };
 
 export const colors = {
+    white: hexToRgb('#FFFFFF'),
     sky: hexToRgb('#87CEEB'), // Light Sky Blue
     sea: hexToRgb('#006994'), // Dark Blue
     barrier: hexToRgb('#ffffff'), // White

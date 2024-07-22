@@ -1,26 +1,28 @@
 precision highp float;
 
-varying vec3 v3f_frag_pos;
-varying vec3 v3f_normal;
-varying vec2 v2f_uv;
+varying vec3 v2f_frag_pos;
+varying vec3 v2f_normal;
 
 uniform vec3 light_position; // light position in camera coordinates
 uniform vec3 light_color;
-uniform samplerCube cube_shadowmap;
-uniform sampler2D tex_color;
+
+
+uniform vec4 u_color;
 
 void main() {
-    float material_ambient = 0.0;
+    float material_ambient = 0.8;
     float material_shininess = 12.;
-    vec3 material_color = vec3(texture2D(tex_color, v2f_uv));
+    vec3 material_color = u_color.xyz;
 
-    vec3 l_minus_p = light_position - v3f_frag_pos;
+    vec3 l_minus_p = light_position - v2f_frag_pos;
     float d = length(l_minus_p); // distance to light
-    float attenuation_factor = 1. / (d * d);
 
-    vec3 n = normalize(v3f_normal);
+    // Change the factor to modifie the intensity of the light.
+    float attenuation_factor = 100. / (d * d);
+
+    vec3 n = normalize(v2f_normal);
     vec3 l = normalize(l_minus_p);
-    vec3 v = -normalize(v3f_frag_pos); // in camera space
+    vec3 v = -normalize(v2f_frag_pos); // in camera space
     vec3 h = normalize(l + v);
     float nl = max(dot(n, l), 0.);
     float nh = max(dot(n, h), 0.);
@@ -33,11 +35,11 @@ void main() {
     vec3 color = light_color * material_color * material_ambient
     * attenuation_factor;
 
-    if (d < textureCube(cube_shadowmap, -l_minus_p).x * 1.01) {
-        // not in shadow, add diff and spec contributions
-        color += light_color * material_color
+    // add diff and spec contributions
+    color += light_color * material_color
         * attenuation_factor * (diff + spec);
-    }
+
 
     gl_FragColor = vec4(color, 1.);
+    //gl_FragColor = u_color;
 }

@@ -25,17 +25,37 @@ async function main() {
         changeViewDirection(event.clientX / canvas.width, event.clientY / canvas.height)
     });
 
-    console.log("a", objects)
     const listDraw = []
 
     const frag = await shaders["basic.frag.glsl"]
     const vert = await shaders["basic.vert.glsl"]
 
+    const drawTest = regl({
+        frag: await shaders["phong_shadow.frag.glsl"],
+
+        vert: await shaders["phong_shadow.vert.glsl"],
+
+        attributes: {
+            vertex_position: objects["wall.obj"].vertex_positions,
+            vertex_normal: objects["wall.obj"].vertex_normals
+        },
+
+        uniforms: {
+            mat_mvp: regl.prop("u_mat_mvp"),
+            mat_model_view: regl.prop("mat_model_view"),
+            u_mat_mvp: regl.prop("u_mat_mvp"),
+            mat_normals_to_view: mat3.create(),// no weird transformation
+            u_color: regl.prop("u_color"),
+            light_position: vec3.fromValues(3, 2, 0),
+            light_color: colors.white.slice(0, 3)
+        },
+
+        elements: objects["wall.obj"].faces
+
+    })
+
     Object.keys(objects).forEach(key => {
         const obj = objects[key];
-        console.log("b", key, obj);
-
-        // Perform operations on obj
         const draw = regl({
             frag: frag,
 
@@ -57,7 +77,7 @@ async function main() {
     });
 
     const model = mat4.multiplyMultiple(mat4.create(),
-        // The axe in blender are not the same as here.
+        // The axes in blender are not the same as here.
         mat4.fromXRotation(mat4.create(), Math.PI / 2),
     )
 
@@ -85,7 +105,8 @@ async function main() {
 
     regl.frame(() => {
 
-        const mvp = mat4.multiplyMultiple(mat4.create(), projection, getView(), model);
+        const mv = mat4.mul(mat4.create(), getView(), model)
+        const mvp = mat4.multiplyMultiple(mat4.create(), projection, mv);
 
         const barrier_props = {
             u_mat_mvp: mvp,
@@ -93,6 +114,7 @@ async function main() {
         }
 
         const wall_props = {
+            mat_model_view: mv,
             u_mat_mvp: mvp,
             u_color: colors.wall,
         }
@@ -112,8 +134,9 @@ async function main() {
         });
 
         listDraw[0](barrier_props)
-        listDraw[1](wall_props)
+
         listDraw[2](sea_props)
         listDraw[3](floor_props)
+        drawTest(wall_props)
     });
 }
