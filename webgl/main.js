@@ -22,7 +22,7 @@ async function load_resources(regl) {
     }
 
     const meshes_to_load = [
-        "barrier.obj", "mur.obj"
+        "barrier.obj", "wall.obj", "sea.obj", "floor.obj"
     ]
     for(const mesh_name of meshes_to_load) {
         resource_promises[mesh_name] = icg_mesh_load_obj(`./objects/${mesh_name}`)
@@ -77,6 +77,7 @@ async function main() {
 
     changeViewDirection(0.5, 0.5)
 
+    console.log(colors.water)
 
 
 
@@ -101,7 +102,6 @@ async function main() {
               }`,
 
         attributes: {
-            //[0.5, -0.5], [-0.8, -0.9], [0, 0.5]
             position: resources['barrier.obj'].vertex_positions,
         },
 
@@ -113,7 +113,7 @@ async function main() {
 
     })
 
-    const drawMur = regl({
+    const drawWall = regl({
         frag: `
               void main() {
                 gl_FragColor = vec4(0.8, 0.6, 0.8, 1);
@@ -128,18 +128,68 @@ async function main() {
               }`,
 
         attributes: {
-            //[0.5, -0.5], [-0.8, -0.9], [0, 0.5]
-            position: resources['mur.obj'].vertex_positions,
+            position: resources['wall.obj'].vertex_positions,
         },
 
         uniforms: {
             u_mat_mvp: regl.prop("u_mat_mvp"),
         },
 
-        elements: resources['mur.obj'].faces
+        elements: resources['wall.obj'].faces
 
     })
 
+    const drawSea = regl({
+        frag: `
+              void main() {
+                gl_FragColor = vec4(0, 0.41, 0.58, 1);
+              }`,
+
+        vert: `
+              attribute vec3 position;
+              uniform mat4 u_mat_mvp;
+              void main() {
+                vec4 pos = u_mat_mvp * vec4(position, 1.0);
+                gl_Position = pos;
+              }`,
+
+        attributes: {
+            position: resources['sea.obj'].vertex_positions,
+        },
+
+        uniforms: {
+            u_mat_mvp: regl.prop("u_mat_mvp"),
+        },
+
+        elements: resources['sea.obj'].faces
+
+    })
+
+    const drawFloor = regl({
+        frag: `
+              void main() {
+                gl_FragColor = vec4(0.80, 0.48, 0.17, 1);
+              }`,
+
+        vert: `
+              attribute vec3 position;
+              uniform mat4 u_mat_mvp;
+              void main() {
+                vec4 pos = u_mat_mvp * vec4(position, 1.0);
+                gl_Position = pos;
+              }`,
+
+        attributes: {
+            position: resources['floor.obj'].vertex_positions,
+        },
+
+        uniforms: {
+            u_mat_mvp: regl.prop("u_mat_mvp"),
+        },
+
+        elements: resources['floor.obj'].faces
+
+    })
 
     const drawTriangle = regl({
         frag: `
@@ -168,6 +218,7 @@ async function main() {
 
 
 
+
     // Set clear color to sky, fully opaque
     const skyColor = colors.sky.concat(1.0);
 
@@ -182,7 +233,7 @@ async function main() {
             // The axe in blender are not the same as here.
             mat4.fromXRotation(mat4.create(), Math.PI/2),
 
-            mat4.fromYRotation(mat4.create(), frame.time),
+            mat4.fromYRotation(mat4.create(), frame.time/5),
             mat4.fromTranslation(mat4.create(), vec3.fromValues(3, 0, 0))
         )
 
@@ -213,6 +264,8 @@ async function main() {
 
         drawTriangle(triangle_meshes_props)
         drawBarrier(cube_meshes_props)
-        drawMur(cube_meshes_props)
+        drawWall(cube_meshes_props)
+        drawSea(cube_meshes_props)
+        drawFloor(cube_meshes_props)
     });
 }
