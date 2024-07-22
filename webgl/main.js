@@ -45,10 +45,10 @@ async function main() {
                 mat_mvp: regl.prop("u_mat_mvp"),
                 mat_model_view: regl.prop("mat_model_view"),
                 u_mat_mvp: regl.prop("u_mat_mvp"),
-                mat_normals_to_view: mat3.create(),// no weird transformation
+                mat_normals_to_view: regl.prop("mat_normals_to_view"),// TODO find transformation
                 u_color: regl.prop("u_color"),
-                light_position: vec3.fromValues(3, 2, 0),
-                light_color: colors.white.slice(0, 3)
+                light_position: regl.prop("light_position"),
+                light_color: colors.lightingColor.slice(0, 3)
             },
 
             elements: obj.faces
@@ -83,31 +83,49 @@ async function main() {
 
     // Set clear color to sky, fully opaque
     const skyColor = colors.sky;
+    const lightPos = vec4.fromValues(4, 6, 10, 1);
 
     regl.frame(() => {
 
         const mv = mat4.mul(mat4.create(), getView(), model)
         const mvp = mat4.multiplyMultiple(mat4.create(), projection, mv);
+        let mat_normals_to_view = mat3.create();
+        mat3.invert(mat_normals_to_view,
+            mat3.transpose(mat_normals_to_view,
+                mat3.fromMat4(mat_normals_to_view,
+                    mv)))
+
+        const l = vec4.transformMat4(vec4.create(), lightPos, mv)
+        const lightPosFromCamera = vec3.fromValues(l[0], l[1], l[2]);
+        console.log("lc", lightPosFromCamera)
 
         const barrier_props = {
+            light_position: lightPosFromCamera,
+            mat_normals_to_view: mat_normals_to_view,
             mat_model_view: mv,
             u_mat_mvp: mvp,
             u_color: colors.barrier,
         }
 
         const wall_props = {
+            light_position: lightPosFromCamera,
+            mat_normals_to_view: mat_normals_to_view,
             mat_model_view: mv,
             u_mat_mvp: mvp,
             u_color: colors.wall,
         }
 
         const floor_props = {
+            light_position: lightPosFromCamera,
+            mat_normals_to_view: mat_normals_to_view,
             mat_model_view: mv,
             u_mat_mvp: mvp,
             u_color: colors.floor
         }
 
         const sea_props = {
+            light_position: lightPosFromCamera,
+            mat_normals_to_view: mat_normals_to_view,
             mat_model_view: mv,
             u_mat_mvp: mvp,
             u_color: colors.sea

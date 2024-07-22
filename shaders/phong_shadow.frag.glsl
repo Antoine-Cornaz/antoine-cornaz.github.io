@@ -11,14 +11,14 @@ uniform vec4 u_color;
 
 void main() {
     float material_ambient = 0.6;
-    float material_shininess = 12.;
+    float material_shininess = 100.;
     vec3 material_color = u_color.xyz;
 
     vec3 l_minus_p = light_position - v2f_frag_pos;
     float d = length(l_minus_p); // distance to light
 
     // Change the factor to modifie the intensity of the light.
-    float attenuation_factor = 100. / (d * d);
+    float attenuation_factor = 70. / (d * d);
 
     vec3 n = normalize(v2f_normal);
     vec3 l = normalize(l_minus_p);
@@ -40,5 +40,4 @@ void main() {
 
 
     gl_FragColor = vec4(color, 1.);
-    //gl_FragColor = u_color;
 }

@@ -13,6 +13,7 @@ export const colors = {
     sea: hexToRgb('#006994'), // Dark Blue
     barrier: hexToRgb('#ffffff'), // White
     wall: hexToRgb('#ce702d'), // Orange
-    floor: hexToRgb('#ce862d') // Light Orange
+    floor: hexToRgb('#ce862d'), // Light Orange
+    lightingColor: hexToRgb('#FFFFFF')
 };
 
