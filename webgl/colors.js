@@ -9,8 +9,9 @@ const hexToRgb = (hex) => {
 
 export const colors = {
     sky: hexToRgb('#87CEEB'), // Light Sky Blue
-    water: hexToRgb('#006994'), // Dark Blue
+    sea: hexToRgb('#006994'), // Dark Blue
     barrier: hexToRgb('#ffffff'), // White
-    text_color: hexToRgb('#2c3e50') // Dark Slate Gray
+    wall: hexToRgb('#ce702d'), // Orange
+    floor: hexToRgb('#ce862d') // Light Orange
 };
 

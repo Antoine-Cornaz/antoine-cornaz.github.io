@@ -10,7 +10,7 @@ export async function load_resources(regl) {
     const shaders = {}
 
     const shaders_to_load = [
-        "basic-vert.glsl", "basic-frag.glsl"
+        "basic.vert.glsl", "basic.frag.glsl", "phong_shadow.frag.glsl", "phong_shadow.vert.glsl",
     ]
     for(const shader_name of shaders_to_load) {
         shaders[shader_name] = load_text(`../shaders/${shader_name}`)
