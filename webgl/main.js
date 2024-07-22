@@ -1,71 +1,10 @@
-import { createREGL } from "../lib/regl.js"
-import { colors } from "./colors.js";
+import {createREGL} from "../lib/regl.js"
+import {colors} from "./colors.js";
 
-import {DOM_loaded_promise, load_text, register_keyboard_action} from "../icg/icg_web.js"
-import {icg_mesh_load_obj} from "../icg/icg_mesh.js"
-import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "../icg/icg_math.js"
-import { mesh_preprocess } from "../icg/normal_computation.js"
 import {mat3, mat4, vec3, vec4} from "../lib/gl-matrix/index.js";
 import {lookAt, perspective} from "../lib/gl-matrix/mat4.js";
-
-
-
-async function load_resources(regl) {
-
-
-    // Start downloads in parallel
-    const resource_promises = {}
-
-    const shaders_to_load = []
-    for(const shader_name of shaders_to_load) {
-        resource_promises[shader_name] = load_text(`./src/${shader_name}`)
-    }
-
-    const meshes_to_load = [
-        "barrier.obj", "wall.obj", "sea.obj", "floor.obj"
-    ]
-    for(const mesh_name of meshes_to_load) {
-        resource_promises[mesh_name] = icg_mesh_load_obj(`./objects/${mesh_name}`)
-    }
-
-    // Wait for all downloads to complete
-    const resources = {}
-    for (const [key, promise] of Object.entries(resource_promises)) {
-        resources[key] = await promise
-    }
-
-    // Compute normals for meshes
-    for(const mesh_name of meshes_to_load) {
-        resources[mesh_name] = mesh_preprocess(regl, resources[mesh_name])
-    }
-
-    return resources
-}
-
-function changeViewDirection(x, y){
-
-    console.log('Mouse entered the canvas at:', { x: x, y: y });
-
-    const theta0 = 1.7
-    const theta = -(x-0.5) + theta0
-    const phi = -(y-0.5)
-
-    const eye = vec3.fromValues(0.38, -12, 3.34)
-    const direction = vec3.fromValues(Math.cos(theta)*Math.cos(phi), Math.sin(theta)*Math.cos(phi), Math.sin(phi))
-    const center = vec3.add(vec3.create(), eye, direction);
-    const up = vec3.fromValues(0, 0,1)
-
-
-    view = mat4.lookAt(
-        mat4.create(),
-        eye,
-        center,
-        up
-    )
-}
-
-// The view mat4
-let view
+import {load_resources} from "./helper.js";
+import {changeViewDirection, getView} from "./camera.js";
 
 
 main();
@@ -76,12 +15,10 @@ async function main() {
     const regl = createREGL({})
 
     const resources = await load_resources(regl)
+    const objects = resources[0]
+    const shaders = resources[1]
 
     changeViewDirection(0.5, 0.5)
-
-    console.log(colors.water)
-
-
 
     const canvas_elem = document.getElementsByTagName('canvas')[0]
     canvas_elem.addEventListener('mousemove', (event) => {
@@ -89,29 +26,22 @@ async function main() {
     });
     canvas_elem.width
 
+    //vec4(0.9, 0.96, 0.95, 1);
     const drawBarrier = regl({
-        frag: `
-              void main() {
-                gl_FragColor = vec4(0.9, 0.96, 0.95, 1);
-              }`,
+        frag: await shaders["basic-frag.glsl"],
 
-        vert: `
-              attribute vec3 position;
-              uniform mat4 u_mat_mvp;
-              void main() {
-                vec4 pos = u_mat_mvp * vec4(position, 1.0);
-                gl_Position = pos;
-              }`,
+        vert: await shaders["basic-vert.glsl"],
 
         attributes: {
-            position: resources['barrier.obj'].vertex_positions,
+            position: objects['barrier.obj'].vertex_positions,
         },
 
         uniforms: {
             u_mat_mvp: regl.prop("u_mat_mvp"),
+            u_color: regl.prop("u_color")
         },
 
-        elements: resources['barrier.obj'].faces
+        elements: objects['barrier.obj'].faces
 
     })
 
@@ -130,14 +60,14 @@ async function main() {
               }`,
 
         attributes: {
-            position: resources['wall.obj'].vertex_positions,
+            position: objects['wall.obj'].vertex_positions,
         },
 
         uniforms: {
             u_mat_mvp: regl.prop("u_mat_mvp"),
         },
 
-        elements: resources['wall.obj'].faces
+        elements: objects['wall.obj'].faces
 
     })
 
@@ -156,14 +86,14 @@ async function main() {
               }`,
 
         attributes: {
-            position: resources['sea.obj'].vertex_positions,
+            position: objects['sea.obj'].vertex_positions,
         },
 
         uniforms: {
             u_mat_mvp: regl.prop("u_mat_mvp"),
         },
 
-        elements: resources['sea.obj'].faces
+        elements: objects['sea.obj'].faces
 
     })
 
@@ -182,54 +112,27 @@ async function main() {
               }`,
 
         attributes: {
-            position: resources['floor.obj'].vertex_positions,
+            position: objects['floor.obj'].vertex_positions,
         },
 
         uniforms: {
             u_mat_mvp: regl.prop("u_mat_mvp"),
         },
 
-        elements: resources['floor.obj'].faces
+        elements: objects['floor.obj'].faces
 
     })
-
-    const drawTriangle = regl({
-        frag: `
-              void main() {
-                gl_FragColor = vec4(1, 0, 0, 1);
-              }`,
-
-        vert: `
-              attribute vec3 position;
-              uniform mat4 u_mat_mvp;
-              void main() {
-                vec4 pos = u_mat_mvp * vec4(position, 1.0);
-                gl_Position = pos;
-              }`,
-
-        attributes: {
-            position: [[1, -0.5, 2], [-0.5, -0.5, 3], [0, 0.5, 0]]
-        },
-
-        uniforms: {
-            u_mat_mvp: regl.prop("u_mat_mvp"),
-        },
-
-        count: 3
-    })
-
-
 
 
     // Set clear color to sky, fully opaque
-    const skyColor = colors.sky.concat(1.0);
+    const skyColor = colors.sky;
 
     regl.frame((frame) => {
 
         const model = mat4.multiplyMultiple(mat4.create(),
 
             // The axe in blender are not the same as here.
-            mat4.fromXRotation(mat4.create(), Math.PI/2),
+            mat4.fromXRotation(mat4.create(), Math.PI / 2),
 
             //mat4.fromYRotation(mat4.create(), frame.time/5),
             //mat4.fromTranslation(mat4.create(), vec3.fromValues(3, 0, 0))
@@ -243,14 +146,12 @@ async function main() {
             500
         )
 
-        const mv = mat4.mul(mat4.create(), view, model);
-        const mvp = mat4.mul(mat4.create(), projection, mv);
+        const mvp = mat4.multiplyMultiple(mat4.create(), projection, getView(), model);
         const cube_meshes_props = []
         cube_meshes_props.push({
-            u_mat_mvp: mvp
+            u_mat_mvp: mvp,
+            u_color: vec4.fromValues(0.90, 0.96, 0.95, 1)
         })
-
-
 
         regl.clear({
             color: [...skyColor],
