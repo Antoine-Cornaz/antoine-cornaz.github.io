@@ -18,7 +18,7 @@ void main() {
     float d = length(l_minus_p); // distance to light
 
     // Change the factor to modifie the intensity of the light.
-    float attenuation_factor = 70. / (d * d);
+    float attenuation_factor = 70000. / (d * d);
 
     vec3 n = normalize(v2f_normal);
     vec3 l = normalize(l_minus_p);

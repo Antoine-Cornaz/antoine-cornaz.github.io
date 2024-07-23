@@ -12,6 +12,7 @@ This promise gets resolved when the document has loaded
 * what is a promise - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 */
 export const DOM_loaded_promise = new Promise((accept, reject) => {
+
 	if (document.readyState === 'loading') {  // Loading hasn't finished yet
 		 document.addEventListener('DOMContentLoaded', accept);
 	} else {  // `DOMContentLoaded` has already fired

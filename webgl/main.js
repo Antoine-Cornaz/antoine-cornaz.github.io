@@ -5,6 +5,7 @@ import {mat3, mat4, vec3, vec4} from "../lib/gl-matrix/index.js";
 import {lookAt, perspective} from "../lib/gl-matrix/mat4.js";
 import {load_resources} from "./helper.js";
 import {changeViewDirection, getView} from "./camera.js";
+import {DOM_loaded_promise, register_keyboard_action} from "../icg/icg_web.js";
 
 
 main();
@@ -25,11 +26,26 @@ async function main() {
         changeViewDirection(event.clientX / canvas.width, event.clientY / canvas.height)
     });
 
+    register_keyboard_action('g', () => console.log("g pressed"));
+
+
+    let keyState = {};
+    // Set up event listeners for keyboard input
+    window.addEventListener('keydown', (event) => {
+        keyState[event.key] = true;
+        console.log("asd keydown")
+    });
+    window.addEventListener('keyup', (event) => {
+        keyState[event.key] = false;
+        console.log("asd keyup")
+    });
+    canvas.addEventListener('keypress', event => console.log("asd", event))
+
     const listDraw = []
 
     const drawSea = regl({
-        frag: await shaders["basic.frag.glsl"],
-        vert: await shaders["basic.vert.glsl"],
+        frag: await shaders["phong_shadow.frag.glsl"],
+        vert: await shaders["phong_shadow.vert.glsl"],
 
         attributes: {
             vertex_position: objects["sea.obj"].vertex_positions,
@@ -105,13 +121,24 @@ async function main() {
     });
 
     // Set clear color to sky, fully opaque
-    const skyColor = colors.sky;
-    const lightPos = vec4.fromValues(4, 6, 10, 1);
+    const skyColor = colors.sky
+    const lightPos = vec4.fromValues(4, 400, 2, 1);
 
-    const mat_translation_boat = mat4.fromTranslation(mat4.create(), vec3.fromValues(-41, -13, -140))
+    const mat_translation_boat1 = mat4.fromTranslation(mat4.create(), vec3.fromValues(-41, -13, -140))
+    const mat_translation_boat2 = mat4.fromTranslation(mat4.create(), vec3.fromValues(-21, -13, -120))
 
 
+    let oldtime = 0
     regl.frame((frame) => {
+        const diff_time = frame.time - oldtime;
+
+        if (keyState['w']) {
+            console.log('W key is pressed');
+            // Add logic for 'W' key being pressed
+        }
+
+
+
         const mv = mat4.mul(mat4.create(), getView(), model)
         let mat_normals_to_view = mat3.create();
         mat3.invert(mat_normals_to_view,
@@ -120,17 +147,20 @@ async function main() {
                     mv)))
 
         const mat_rotation_boat = mat4.fromZRotation(mat4.create(), 0.2*Math.sin(frame.time));
-
-        const mv_boat = mat4.multiplyMultiple(mat4.create(), mv, mat_translation_boat, mat_rotation_boat);
         const mvp = mat4.multiplyMultiple(mat4.create(), projection, mv);
+
+        const mv_boat = mat4.multiplyMultiple(mat4.create(), mv, mat_translation_boat1, mat_rotation_boat);
         const mvp_boat = mat4.multiplyMultiple(mat4.create(), projection, mv_boat);
+
+        const mv_boat2 = mat4.multiplyMultiple(mat4.create(), mv, mat_translation_boat2, mat_rotation_boat);
+        const mvp_boat2 = mat4.multiplyMultiple(mat4.create(), projection, mv_boat2);
 
 
 
 
         const l = vec4.transformMat4(vec4.create(), lightPos, mv)
         const lightPosFromCamera = vec3.fromValues(l[0], l[1], l[2]);
-        console.log("lc", lightPosFromCamera)
+
 
         const barrier_props = {
             light_position: lightPosFromCamera,
@@ -164,21 +194,39 @@ async function main() {
             u_color: colors.sea
         }
 
-        const boat_wood_props = {
+        let boat_wood_props = []
+        boat_wood_props.push({
             light_position: lightPosFromCamera,
             mat_normals_to_view: mat_normals_to_view,
             mat_model_view: mv_boat,
             u_mat_mvp: mvp_boat,
             u_color: colors.wood
-        }
+        })
+        boat_wood_props.push({
+            light_position: lightPosFromCamera,
+            mat_normals_to_view: mat_normals_to_view,
+            mat_model_view: mv_boat2,
+            u_mat_mvp: mvp_boat2,
+            u_color: colors.wood
+        })
 
-        const boat_sail_props = {
+        const boat_sail_props = []
+        boat_sail_props.push({
             light_position: lightPosFromCamera,
             mat_normals_to_view: mat_normals_to_view,
             mat_model_view: mv_boat,
             u_mat_mvp: mvp_boat,
             u_color: colors.white
-        }
+        })
+
+
+        boat_sail_props.push({
+            light_position: lightPosFromCamera,
+            mat_normals_to_view: mat_normals_to_view,
+            mat_model_view: mv_boat2,
+            u_mat_mvp: mvp_boat2,
+            u_color: colors.white
+        })
 
         regl.clear({
             color: [...skyColor],
@@ -192,3 +240,7 @@ async function main() {
         listDraw[5](boat_wood_props)
     });
 }
+
+
+
+DOM_loaded_promise.then(main);
