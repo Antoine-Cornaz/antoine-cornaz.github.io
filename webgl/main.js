@@ -119,7 +119,9 @@ async function main() {
 
     let old_time = 0
     regl.frame((frame) => {
-        const diff_time = frame.time - old_time;
+        const now = frame.time
+        const diff_time = now - old_time;
+        old_time = now;
 
         checkKeyboard(diff_time, camera)
 

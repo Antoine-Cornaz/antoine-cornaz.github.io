@@ -16,7 +16,7 @@ export class Camera{
 
     changeViewDirection(direction, time){
 
-        const speed = 0.005;
+        const speed = 1.5;
         this.theta -= direction[0]*time * speed
         this.phi -= direction[1]*time * speed
 
@@ -44,7 +44,7 @@ export class Camera{
 
 
     move(direction){
-        const speed = 0.1
+        const speed = 10
         const rotationToView = mat3.fromRotation(mat3.create(), this.theta)
         vec3.transformMat3(direction, direction, rotationToView)
         vec3.scale(direction, direction, speed)
