@@ -4,8 +4,9 @@ import {colors} from "./colors.js";
 import {mat3, mat4, vec3, vec4} from "../lib/gl-matrix/index.js";
 import {lookAt, perspective} from "../lib/gl-matrix/mat4.js";
 import {load_resources} from "./helper.js";
-import {changeViewDirection, getView} from "./camera.js";
+import {Camera} from "./camera.js";
 import {DOM_loaded_promise, register_keyboard_action} from "../icg/icg_web.js";
+import {addListener, checkKeyboard} from "./control.js";
 
 
 main();
@@ -19,28 +20,16 @@ async function main() {
     const objects = resources[0]
     const shaders = resources[1]
 
-    changeViewDirection(0.5, 0.5)
+    const camera = new Camera()
 
+
+    const date = new Date();
     const canvas = document.getElementsByTagName('canvas')[0]
-    canvas.addEventListener('mousemove', (event) => {
-        changeViewDirection(event.clientX / canvas.width, event.clientY / canvas.height)
-    });
-
-    register_keyboard_action('g', () => console.log("g pressed"));
 
 
-    let keyState = {};
-    // Set up event listeners for keyboard input
-    window.addEventListener('keydown', (event) => {
-        keyState[event.key] = true;
-        console.log("asd keydown")
-    });
-    window.addEventListener('keyup', (event) => {
-        keyState[event.key] = false;
-        console.log("asd keyup")
-    });
-    canvas.addEventListener('keypress', event => console.log("asd", event))
 
+
+    addListener(window, canvas)
     const listDraw = []
 
     const drawSea = regl({
@@ -128,18 +117,15 @@ async function main() {
     const mat_translation_boat2 = mat4.fromTranslation(mat4.create(), vec3.fromValues(-21, -13, -120))
 
 
-    let oldtime = 0
+    let old_time = 0
     regl.frame((frame) => {
-        const diff_time = frame.time - oldtime;
+        const diff_time = frame.time - old_time;
 
-        if (keyState['w']) {
-            console.log('W key is pressed');
-            // Add logic for 'W' key being pressed
-        }
+        checkKeyboard(diff_time, camera)
 
 
 
-        const mv = mat4.mul(mat4.create(), getView(), model)
+        const mv = mat4.mul(mat4.create(), camera.getView(), model)
         let mat_normals_to_view = mat3.create();
         mat3.invert(mat_normals_to_view,
             mat3.transpose(mat_normals_to_view,
@@ -242,5 +228,3 @@ async function main() {
 }
 
 
-
-DOM_loaded_promise.then(main);
