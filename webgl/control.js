@@ -46,5 +46,9 @@ export function checkKeyboard(diff_time, camera){
         camera.move(vec3.fromValues(0, 0, -diff_time))
     }
 
+    if(keyState['r']){
+        camera.reset()
+    }
+
     camera.changeViewDirection(mouseDirection, diff_time)
 }
