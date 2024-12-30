@@ -33,7 +33,6 @@ export function addListener(window, canvas, player){
         const normalizedX = 2*touch.clientX / canvas.width - 1.0;
         const normalizedY = -2*touch.clientY / canvas.height + 1.0;
     
-        console.log(normalizedX, normalizedY)
         // Move the player based on the touch position
         player.move(vec2.fromValues(normalizedX, normalizedY));
     });
