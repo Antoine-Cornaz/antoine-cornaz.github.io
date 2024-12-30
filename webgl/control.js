@@ -20,6 +20,11 @@ export function addListener(window, canvas, player){
         player.move(vec2.fromValues(event.clientX / canvas.width - 0.5, -event.clientY /canvas.height + 0.5))
         mouseDirection = vec2.fromValues(event.clientX / canvas.width - 0.5, event.clientY / canvas.height - 0.5)
     });
+
+    canvas.addEventListener('touchmove', (event) => {
+        player.move(vec2.fromValues(event.clientX / canvas.width - 0.5, -event.clientY /canvas.height + 0.5))
+        mouseDirection = vec2.fromValues(event.clientX / canvas.width - 0.5, event.clientY / canvas.height - 0.5)
+    });
 }
 
 export function checkKeyboard(diff_time, camera){
