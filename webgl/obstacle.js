@@ -9,7 +9,7 @@ export class Obstacle extends Displayed{
         super();
         this.setPosition(position);
         this.FALLING_SPEED = 1.5;
-        this.color = [0.4, 0.7, 0.9];
+        this.color = [0.4, 0.7, 0.1];
     }
 
     update(time){
