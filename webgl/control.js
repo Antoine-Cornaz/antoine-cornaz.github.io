@@ -30,8 +30,8 @@ export function addListener(window, canvas, player){
         const touch = event.touches[0];
     
         // Calculate normalized coordinates
-        const normalizedX = touch.clientX / canvas.width - 0.5;
-        const normalizedY = -touch.clientY / canvas.height + 0.5;
+        const normalizedX = 2*touch.clientX / canvas.width - 1.0;
+        const normalizedY = -2*touch.clientY / canvas.height + 1.0;
     
         console.log(normalizedX, normalizedY)
         // Move the player based on the touch position
