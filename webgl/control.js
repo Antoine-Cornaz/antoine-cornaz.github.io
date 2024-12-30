@@ -3,7 +3,8 @@ import {fromValues} from "../lib/gl-matrix/vec3.js";
 
 let keyState = {};
 let mouseDirection = vec2.fromValues(0, 0)
-export function addListener(window, canvas){
+
+export function addListener(window, canvas, player){
     window.addEventListener('keydown', (event) => {
         keyState[event.key.toLowerCase()] = true;
     });
@@ -16,7 +17,7 @@ export function addListener(window, canvas){
         )
 
     canvas.addEventListener('mousemove', (event) => {
-
+        player.move(vec2.fromValues(event.clientX / canvas.width - 0.5, -event.clientY /canvas.height + 0.5))
         mouseDirection = vec2.fromValues(event.clientX / canvas.width - 0.5, event.clientY / canvas.height - 0.5)
     });
 }

@@ -16,5 +16,5 @@ export const colors = {
     floor: hexToRgb('#ce862d'), // Light Orange
     lightingColor: hexToRgb('#FFFFFF'),
     wood: hexToRgb('#A47449'),
+    blueSky: hexToRgb('#87ceeb'),
 };
-
