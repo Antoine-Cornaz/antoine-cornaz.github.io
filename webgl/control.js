@@ -22,8 +22,21 @@ export function addListener(window, canvas, player){
     });
 
     canvas.addEventListener('touchmove', (event) => {
-        player.move(vec2.fromValues(event.clientX / canvas.width - 0.5, -event.clientY /canvas.height + 0.5))
-        mouseDirection = vec2.fromValues(event.clientX / canvas.width - 0.5, event.clientY / canvas.height - 0.5)
+        // Prevent the default scrolling behavior
+        event.preventDefault();
+    
+        // Get the touch point (we use the first touch point in case of multi-touch)
+        const touch = event.touches[0];
+    
+        // Calculate normalized coordinates
+        const normalizedX = touch.clientX / canvas.width - 0.5;
+        const normalizedY = -touch.clientY / canvas.height + 0.5;
+    
+        // Move the player based on the touch position
+        player.move(vec2.fromValues(normalizedX, normalizedY));
+    
+        // Update the direction based on the touch position
+        mouseDirection = vec2.fromValues(normalizedX, -normalizedY);
     });
 }
 
