@@ -98,7 +98,7 @@ DOM_loaded_promise.then(() => {
         const now = frame.time
         const diff_time = now - old_time;
         old_time = now;
-        if (stop) return;
+        if (stop) diff_time = 0;
 
         // Clear the canvas
         regl.clear({
@@ -120,7 +120,7 @@ DOM_loaded_promise.then(() => {
 
             // Check for collisions
             if(player.checkCollision(obstacle)){
-                player.setColors([1.0, 1.0, 1.0]);
+                player.setColors([1.0, 1.0, 0.0]);
                 stop = true;
             }
 
