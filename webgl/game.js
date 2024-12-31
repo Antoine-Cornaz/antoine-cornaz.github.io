@@ -60,7 +60,6 @@ export class Game {
     }
 
 
-
     createDrawCommands() {
         // Define a draw command for the player
         this.drawPlayer = this.regl({
@@ -106,7 +105,6 @@ export class Game {
 
     start() {
         this.stop = false;
-        this.old_time = 0;
         this.frameLoop = this.regl.frame(this.update.bind(this));
     }
 
@@ -119,10 +117,9 @@ export class Game {
     }
 
     restart() {
-        console.log("Restarting game");
+        if (!this.stop) return;
         this.stopGame();
         this.player.reset();
-        this.setupObstacles();
         this.setupObstacles();
         this.start();
     }
