@@ -1,8 +1,8 @@
-attribute vec3 vertex_position;
-uniform mat4 u_mat_mvp;
-
-
-
+precision mediump float;
+attribute vec2 position;
+uniform mat3 transform;
 void main() {
-    gl_Position = u_mat_mvp * vec4(vertex_position, 1.0);
+
+    vec3 pos = transform * vec3(position, 1.0);
+    gl_Position = vec4(pos.xy, 0.0, 1.0);
 }

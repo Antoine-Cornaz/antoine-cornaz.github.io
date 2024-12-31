@@ -1,143 +1,16 @@
-import {createREGL} from "../lib/regl.js"
-import {colors} from "./colors.js";
 
-import {vec2, mat3, mat4, vec3, vec4} from "../lib/gl-matrix/index.js";
-import {lookAt, perspective} from "../lib/gl-matrix/mat4.js";
-import {load_resources} from "./helper.js";
-import {Camera} from "./camera.js";
-import {DOM_loaded_promise, register_keyboard_action} from "../icg/icg_web.js";
-import {addListener, checkKeyboard} from "./control.js";
-import { Player } from "./player.js";
-import { Obstacle } from "./obstacle.js";
+
+import { Game } from "./game.js";
+
 
 // Initialize the application when the DOM is loaded
-DOM_loaded_promise.then(() => {
-    // Create the REGL instance
-    const regl = createREGL();
+async function main() {
+    const game = new Game();
+    await game.init();
+    game.start();
+}
 
-    const player = new Player();
-
-    const canvas = document.getElementsByTagName('canvas')[0]
-    addListener(window, canvas, player)
-
-    // Define vertex and fragment shaders
-    const vertexShader = `
-        precision mediump float;
-        attribute vec2 position;
-        uniform mat3 transform;
-        void main() {
-            vec3 pos = transform * vec3(position, 1.0);
-            gl_Position = vec4(pos.xy, 0.0, 1.0);
-        }
-    `;
-
-    const fragmentShader = `
-        precision mediump float;
-        uniform vec3 color;
-        void main() {
-            gl_FragColor = vec4(color, 1.0);
-        }
-    `;
-
-    // Create the triangle data (player)
-    const triangle = [
-        [0.0, 0.2],
-        [-0.2, -0.2],
-        [0.2, -0.2]
-    ];
-
-    // Create the square data (obstacles)
-    const square = [
-        [-0.1, 0.1],
-        [-0.1, -0.1],
-        [0.1, -0.1],
-        [-0.1, 0.1],
-        [0.1, -0.1],
-        [0.1, 0.1]
-    ];
-
-    // Create obstacle positions
-    const obstacles = [
-        new Obstacle(vec2.fromValues(0.8, -3.0)),
-        new Obstacle(vec2.fromValues(-0.2, -4.5)),
-        new Obstacle(vec2.fromValues(0.0, -6.0)),
-    ];
-
-    // Define a draw command for the triangle (player)
-    const drawPlayer = regl({
-        vert: vertexShader,
-        frag: fragmentShader,
-        attributes: {
-            position: triangle,
-        },
-        uniforms: {
-            color: regl.prop("color"), // Red color
-            transform: regl.prop("transform"),
-        },
-        count: 3,
-    });
-
-    // Define a draw command for the square (obstacles)
-    const drawSquare = regl({
-        vert: vertexShader,
-        frag: fragmentShader,
-        attributes: {
-            position: square,
-        },
-        uniforms: {
-            color: regl.prop('color'),
-            transform: regl.prop('transform'),
-        },
-        count: 6,
-    });
-
-
-    let old_time = 0
-    let stop = false;
-    regl.frame((frame) => {
-        const now = frame.time
-        const diff_time = now - old_time;
-        old_time = now;
-        if (stop) diff_time = 0;
-
-        // Clear the canvas
-        regl.clear({
-            color: [...colors.blueSky], // Sky background
-        });
-
-        
-
-        // Draw the obstacles (squares)
-        obstacles.forEach(obstacle => {
-
-            obstacle.update(diff_time);
-            const uniform = {
-                color: obstacle.getColor(),
-                transform: obstacle.getTransform()
-            }
-
-            drawSquare(uniform);
-
-            // Check for collisions
-            if(player.checkCollision(obstacle)){
-                player.setColors([1.0, 1.0, 0.0]);
-                stop = true;
-            }
-
-        });
-
-        console.log(player.getColor());
-
-        // Draw the triangle
-        const transform = {
-            transform: player.getTransform(),
-            color: player.getColor(), 
-        };
-        drawPlayer(transform);
-        
-    });
-});
-
+main();
 
 
 /*

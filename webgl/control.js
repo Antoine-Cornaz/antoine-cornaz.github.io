@@ -23,7 +23,6 @@ export function addListener(window, canvas, player){
 
     canvas.addEventListener('touchmove', (event) => {
         // Prevent the default scrolling behavior
-        console.log(event)
         event.preventDefault();
     
         // Get the touch point (we use the first touch point in case of multi-touch)

@@ -27,7 +27,6 @@ export class Displayed{
     }
 
     setColors(color){
-        console.log(color)
         this.color = color
     }
 
