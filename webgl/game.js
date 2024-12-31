@@ -45,7 +45,7 @@ export class Game {
         this.setupObstacles();
 
         const canvas = document.getElementsByTagName("canvas")[0];
-        addListener(window, canvas, this.player);
+        addListener(window, canvas, this.player, this.restart.bind(this));
 
         // Create draw commands
         this.createDrawCommands();
@@ -58,6 +58,8 @@ export class Game {
             new Obstacle(vec2.fromValues(0.0, -6.0)),
         ];
     }
+
+
 
     createDrawCommands() {
         // Define a draw command for the player
@@ -110,12 +112,17 @@ export class Game {
 
     stopGame() {
         this.stop = true;
-        if (this.frameLoop) this.frameLoop.cancel();
+        if (this.frameLoop) {
+            this.frameLoop.cancel();
+            this.frameLoop = null; // Reset frameLoop after canceling
+        }
     }
 
     restart() {
+        console.log("Restarting game");
         this.stopGame();
         this.player.reset();
+        this.setupObstacles();
         this.setupObstacles();
         this.start();
     }
@@ -131,8 +138,9 @@ export class Game {
         });
 
         // Draw obstacles
+        const wasStop = this.stop;
         this.obstacles.forEach((obstacle) => {
-            if (!this.stop) obstacle.update(diff_time);
+            if (!wasStop) obstacle.update(diff_time);
             const propertiesObstacle = {
                 color: obstacle.getColor(),
                 transform: obstacle.getTransform(),

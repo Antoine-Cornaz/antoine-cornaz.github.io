@@ -6,9 +6,14 @@ export class Player extends Displayed{
 
     constructor(){
         super()
+        this.reset()
+    }
+
+    reset(){
         this.setPosition(vec2.fromValues(0.2, 0.4))
         this.setColors([0.4, 0.3, 0.2])
     }
+
 
     checkCollision(obstacle){
         const playerPosition = this.getPosition()

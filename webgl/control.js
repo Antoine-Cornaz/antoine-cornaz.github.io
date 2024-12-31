@@ -4,7 +4,7 @@ import {fromValues} from "../lib/gl-matrix/vec3.js";
 let keyState = {};
 let mouseDirection = vec2.fromValues(0, 0)
 
-export function addListener(window, canvas, player){
+export function addListener(window, canvas, player, restart){
     window.addEventListener('keydown', (event) => {
         keyState[event.key.toLowerCase()] = true;
     });
@@ -34,6 +34,17 @@ export function addListener(window, canvas, player){
     
         // Move the player based on the touch position
         player.move(vec2.fromValues(normalizedX, normalizedY));
+    });
+
+    // Event listener for mouse click
+    canvas.addEventListener('mousedown', (event) => {
+        restart();
+    });
+
+    // Event listener for touch start
+    canvas.addEventListener('touchstart', (event) => {
+        // Prevent default touch behavior (e.g., scrolling)
+        restart();
     });
 }
 
