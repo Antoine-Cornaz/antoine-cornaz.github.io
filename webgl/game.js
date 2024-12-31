@@ -7,6 +7,8 @@ import { addListener } from "./control.js";
 import { Player } from "./player.js";
 import { Obstacle } from "./obstacle.js";
 
+export const SQUARE_SIZE = 0.1;
+export const TRIANGLE_SIZE = 0.2;
 
 export class Game {
     constructor() {
@@ -64,9 +66,9 @@ export class Game {
             frag: this.shaders["basic.frag.glsl"],
             attributes: {
                 position: [
-                    [0.0, 0.2],
-                    [-0.2, -0.2],
-                    [0.2, -0.2],
+                    [0.0, -TRIANGLE_SIZE],
+                    [-TRIANGLE_SIZE, TRIANGLE_SIZE],
+                    [TRIANGLE_SIZE, TRIANGLE_SIZE],
                 ],
             },
             uniforms: {
@@ -76,18 +78,20 @@ export class Game {
             count: 3,
         });
 
+        
+
         // Define a draw command for the obstacles
         this.drawObstacle = this.regl({
             vert: this.shaders["basic.vert.glsl"],
             frag: this.shaders["basic.frag.glsl"],
             attributes: {
                 position: [
-                    [-0.1, 0.1],
-                    [-0.1, -0.1],
-                    [0.1, -0.1],
-                    [-0.1, 0.1],
-                    [0.1, -0.1],
-                    [0.1, 0.1],
+                    [-SQUARE_SIZE, SQUARE_SIZE],
+                    [-SQUARE_SIZE, -SQUARE_SIZE],
+                    [SQUARE_SIZE, -SQUARE_SIZE],
+                    [-SQUARE_SIZE, SQUARE_SIZE],
+                    [SQUARE_SIZE, -SQUARE_SIZE],
+                    [SQUARE_SIZE, SQUARE_SIZE],
                 ],
             },
             uniforms: {
