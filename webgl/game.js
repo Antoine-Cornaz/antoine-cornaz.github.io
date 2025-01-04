@@ -7,7 +7,7 @@ import { addListener } from "./control.js";
 import { Player } from "./player.js";
 import { LevelController } from "./levelController.js";
 import { ENEMY_SIZE } from "./enemy.js";
-import { PLAYER_SIZE } from "./player.js";
+import { PLAYER_DEFAULT_WIDTH } from "./player.js";
 
 
 
@@ -58,9 +58,9 @@ export class Game {
             frag: this.shaders["basic.frag.glsl"],
             attributes: {
                 position: [
-                    [0.0, -PLAYER_SIZE],
-                    [-PLAYER_SIZE, PLAYER_SIZE],
-                    [PLAYER_SIZE, PLAYER_SIZE],
+                    [0.0, -1],
+                    [-1, 1],
+                    [1, 1],
                 ],
             },
             uniforms: {
@@ -78,12 +78,12 @@ export class Game {
             frag: this.shaders["basic.frag.glsl"],
             attributes: {
                 position: [
-                    [-ENEMY_SIZE, ENEMY_SIZE],
-                    [-ENEMY_SIZE, -ENEMY_SIZE],
-                    [ENEMY_SIZE, -ENEMY_SIZE],
-                    [-ENEMY_SIZE, ENEMY_SIZE],
-                    [ENEMY_SIZE, -ENEMY_SIZE],
-                    [ENEMY_SIZE, ENEMY_SIZE],
+                    [-1, 1],
+                    [-1, -1],
+                    [1, -1],
+                    [-1, 1],
+                    [1, -1],
+                    [1, 1],
                 ],
             },
             uniforms: {
