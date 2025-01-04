@@ -1,7 +1,8 @@
 import {vec2, mat3, mat4, vec3, vec4} from "../lib/gl-matrix/index.js";
 import { Displayed } from "./displayed.js";
-import { SQUARE_SIZE, TRIANGLE_SIZE } from "./game.js";
+import { ENEMY_SIZE } from "./enemy.js";
 
+export const PLAYER_SIZE = 0.10;
 export class Player extends Displayed{
 
     constructor(){
@@ -22,7 +23,7 @@ export class Player extends Displayed{
         const diff_x = Math.abs(playerPosition[0] - obstaclePosition[0])
         const diff_y = Math.abs(playerPosition[1] - obstaclePosition[1])
 
-        const total_size = SQUARE_SIZE + TRIANGLE_SIZE
+        const total_size = ENEMY_SIZE + PLAYER_SIZE
 
         // Check if the player is outside the square of the obstacle
         if (!(diff_x < total_size && diff_y < total_size)){
@@ -31,10 +32,9 @@ export class Player extends Displayed{
         
         const y_increase = obstaclePosition[1] - playerPosition[1]
 
-        if (2*diff_x - y_increase >= 3*SQUARE_SIZE + TRIANGLE_SIZE){
+        if (2*diff_x - y_increase >= 3*ENEMY_SIZE + PLAYER_SIZE){
             return false
         }
-
 
         return true
     }

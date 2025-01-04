@@ -5,21 +5,22 @@ import { vec2 } from "../lib/gl-matrix/index.js";
 import { load_resources } from "./helper.js";
 import { addListener } from "./control.js";
 import { Player } from "./player.js";
-import { Obstacle } from "./obstacle.js";
+import { LevelController } from "./levelController.js";
+import { ENEMY_SIZE } from "./enemy.js";
+import { PLAYER_SIZE } from "./player.js";
 
-export const SQUARE_SIZE = 0.1;
-export const TRIANGLE_SIZE = 0.2;
+
 
 export class Game {
     constructor() {
         this.regl = createREGL();
         this.player = new Player();
-        this.obstacles = [];
         this.shaders = {};
         this.objects = {};
-        this.stop = false;
         this.old_time = 0;
         this.frameLoop = null;
+        this.levelController = new LevelController();
+        this.firstFrame = true;
     }
 
     async init() {
@@ -41,22 +42,12 @@ export class Game {
             }
         }
 
-        // Set up player and obstacles
-        this.setupObstacles();
 
         const canvas = document.getElementsByTagName("canvas")[0];
         addListener(window, canvas, this.player, this.restart.bind(this));
 
         // Create draw commands
         this.createDrawCommands();
-    }
-
-    setupObstacles() {
-        this.obstacles = [
-            new Obstacle(vec2.fromValues(0.8, -3.0)),
-            new Obstacle(vec2.fromValues(-0.2, -4.5)),
-            new Obstacle(vec2.fromValues(0.0, -6.0)),
-        ];
     }
 
 
@@ -67,9 +58,9 @@ export class Game {
             frag: this.shaders["basic.frag.glsl"],
             attributes: {
                 position: [
-                    [0.0, -TRIANGLE_SIZE],
-                    [-TRIANGLE_SIZE, TRIANGLE_SIZE],
-                    [TRIANGLE_SIZE, TRIANGLE_SIZE],
+                    [0.0, -PLAYER_SIZE],
+                    [-PLAYER_SIZE, PLAYER_SIZE],
+                    [PLAYER_SIZE, PLAYER_SIZE],
                 ],
             },
             uniforms: {
@@ -81,18 +72,18 @@ export class Game {
 
         
 
-        // Define a draw command for the obstacles
-        this.drawObstacle = this.regl({
+        // Define a draw command for the ennemies
+        this.drawEnnemie = this.regl({
             vert: this.shaders["basic.vert.glsl"],
             frag: this.shaders["basic.frag.glsl"],
             attributes: {
                 position: [
-                    [-SQUARE_SIZE, SQUARE_SIZE],
-                    [-SQUARE_SIZE, -SQUARE_SIZE],
-                    [SQUARE_SIZE, -SQUARE_SIZE],
-                    [-SQUARE_SIZE, SQUARE_SIZE],
-                    [SQUARE_SIZE, -SQUARE_SIZE],
-                    [SQUARE_SIZE, SQUARE_SIZE],
+                    [-ENEMY_SIZE, ENEMY_SIZE],
+                    [-ENEMY_SIZE, -ENEMY_SIZE],
+                    [ENEMY_SIZE, -ENEMY_SIZE],
+                    [-ENEMY_SIZE, ENEMY_SIZE],
+                    [ENEMY_SIZE, -ENEMY_SIZE],
+                    [ENEMY_SIZE, ENEMY_SIZE],
                 ],
             },
             uniforms: {
@@ -103,9 +94,15 @@ export class Game {
         });
     }
 
+    prepare() {
+        this.frameLoop = this.regl.frame(this.update.bind(this));
+        this.stopGame();
+    }
+
     start() {
         this.stop = false;
         this.frameLoop = this.regl.frame(this.update.bind(this));
+        this.firstFrame = true;
     }
 
     stopGame() {
@@ -120,32 +117,38 @@ export class Game {
         if (!this.stop) return;
         this.stopGame();
         this.player.reset();
-        this.setupObstacles();
+        this.levelController.restart();
         this.start();
     }
 
     update(frame) {
         const now = frame.time;
-        const diff_time = now - this.old_time;
+        let diff_time = now - this.old_time;
         this.old_time = now;
+        if (this.firstFrame){
+            diff_time = 0;
+            this.firstFrame = false;
+        }
+        
+
+        // Update the level
+        this.levelController.update(diff_time);
 
         // Clear the canvas
         this.regl.clear({
             color: colors.blueSky, // Sky background
         });
 
-        // Draw obstacles
-        const wasStop = this.stop;
-        this.obstacles.forEach((obstacle) => {
-            if (!wasStop) obstacle.update(diff_time);
-            const propertiesObstacle = {
-                color: obstacle.getColor(),
-                transform: obstacle.getTransform(),
+        // Draw ennemies
+        this.levelController.getEnemies().forEach((ennemie) => {
+            const propertiesEnnemie = {
+                color: ennemie.getColor(),
+                transform: ennemie.getTransform(),
             };
-            this.drawObstacle(propertiesObstacle);
+            this.drawEnnemie(propertiesEnnemie);
 
             // Check for collisions
-            if (this.player.checkCollision(obstacle)) {
+            if (this.player.checkCollision(ennemie)) {
                 this.player.setColors([1.0, 1.0, 0.0]);
                 this.stopGame();
             }
