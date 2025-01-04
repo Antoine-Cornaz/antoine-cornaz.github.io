@@ -30,7 +30,7 @@ export function addListener(canvas, player, restart, lose) {
 
     // Handle touch movements
     canvas.addEventListener('touchmove', (event) => {
-        //handleTouchMove(event, canvas, player);
+        handleTouchMove(event, canvas, player);
     }, { passive: false }); // passive: false allows preventDefault()
 
     // Handle touch start (e.g., restart the game)
