@@ -7,7 +7,6 @@ const ENEMY_COLOR = COLORS.barrier.slice(0, 3);
 export class Enemy extends Displayed{
     
     constructor(){
-        console.log("color bar", COLORS.barrier);
         super(ENEMY_SIZE, ENEMY_SIZE, ENEMY_COLOR);
         this.setPosition(vec2.fromValues(Math.random()*2 - 1, -2));
     }

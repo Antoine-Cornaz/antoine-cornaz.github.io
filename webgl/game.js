@@ -196,7 +196,7 @@ export class Game {
         }
 
         // Update the level controller with the elapsed time
-        this.levelController.update(diff_time);
+        this.levelController.update(diff_time, this.player.getPosition()[1]);
 
         // Display the debug overlay
         this.updateDebugInfo();
@@ -236,7 +236,7 @@ export class Game {
 
     // Update method to set debug info
     updateDebugInfo() {
-        const debugText = document.getElementById('debug-text');
+        const debugText = document.getElementById('score');
         if (debugText) {
             debugText.textContent = `Score: ${this.levelController.getScore().toFixed(2)}`;
         }

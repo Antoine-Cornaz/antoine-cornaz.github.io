@@ -10,9 +10,11 @@ export class LevelController {
     constructor() {
         this.enemies = [];                     // Array to hold enemy instances
         this.clearEnemies();                   // Initialize enemies array
-        this.oldDisplacement = 0;              // Track cumulative displacement
-        this.totalTime = 0;                    // Total elapsed time
+        //this.oldDisplacement = 0;              // Track cumulative displacement
+        //this.totalTime = 0;                    // Total elapsed time
         this.speed = Math.log(SPEED_FALLING_BEGINNING); // Initial speed based on logarithm
+        //this.score = 0;                        // Score based on displacement, how far the player can go
+        this.restart();                        // Restart the level
     }
 
     /**
@@ -22,13 +24,14 @@ export class LevelController {
         this.clearEnemies();
         this.oldDisplacement = 0;
         this.totalTime = 0;
+        this.score = 0;
     }
 
     /**
      * Update the level state based on the elapsed time.
      * @param {number} diffTime - Time difference since the last update (in seconds)
      */
-    update(diffTime) {
+    update(diffTime, playerHeight) {
         this.totalTime += diffTime;
 
         // Update speed based on total time and acceleration
@@ -36,7 +39,6 @@ export class LevelController {
 
         // Calculate vertical displacement for this update
         const displacementY = this.speed * diffTime;
-        console.log("displacementY", displacementY, this.speed, diffTime);
 
         // Update each enemy's position and remove it if it's above the screen
         this.enemies.forEach(enemy => {
@@ -51,6 +53,15 @@ export class LevelController {
 
         // Update the cumulative displacement
         this.oldDisplacement += displacementY;
+        this.updateScore(playerHeight);
+    }
+
+    updateScore(playerHeight){
+        const newScore = this.oldDisplacement - playerHeight + 1;
+
+        if (newScore > this.score){
+            this.score = newScore;
+        }
     }
 
     /**
@@ -69,7 +80,7 @@ export class LevelController {
     }
 
     getScore(){
-        return this.oldDisplacement;
+        return this.score;
     }
 
     /**

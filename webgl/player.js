@@ -8,7 +8,6 @@ const PLAYER_COLOR = COLORS.floor.slice(0, 3)
 export class Player extends Displayed{
 
     constructor(){
-        console.log("color player", COLORS.barrier.slice(0, 3));
         super(0.1, 0.1, PLAYER_COLOR);
         this.reset()
     }
