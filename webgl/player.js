@@ -1,14 +1,15 @@
 import {vec2, mat3, mat4, vec3, vec4} from "../lib/gl-matrix/index.js";
+import { COLORS } from "./colors.js";
 import { Displayed } from "./displayed.js";
-import { ENEMY_SIZE } from "./enemy.js";
 
-export const PLAYER_HEIGHT = 0.10;
-export const PLAYER_DEFAULT_WIDTH = 0.10;
-const PLAYER_COLOR = [0.4, 0.3, 0.2]
+const PLAYER_HEIGHT = 0.10;
+const PLAYER_DEFAULT_WIDTH = 0.10;
+const PLAYER_COLOR = COLORS.floor.slice(0, 3)
 export class Player extends Displayed{
 
     constructor(){
-        super(0.1, 0.1, PLAYER_COLOR)
+        console.log("color player", COLORS.barrier.slice(0, 3));
+        super(0.1, 0.1, PLAYER_COLOR);
         this.reset()
     }
 
@@ -25,16 +26,17 @@ export class Player extends Displayed{
         const diff_x = Math.abs(playerPosition[0] - obstaclePosition[0])
         const diff_y = Math.abs(playerPosition[1] - obstaclePosition[1])
 
-        const total_size = enemy.getHeight() + PLAYER_HEIGHT
+        const total_height = enemy.getHeight() + this.getHeight()
+        const total_width = enemy.getWidth() + this.getWidth()
 
         // Check if the player is outside the square of the obstacle
-        if (!(diff_x < total_size && diff_y < total_size)){
+        if (!(diff_x < total_width && diff_y < total_height)){
             return false
         }
         
         const y_increase = obstaclePosition[1] - playerPosition[1]
 
-        if (2*diff_x - y_increase >= 3*ENEMY_SIZE + PLAYER_HEIGHT){
+        if (2*diff_x - y_increase >= 3*enemy.getHeight() + this.getHeight()){
             return false
         }
 
