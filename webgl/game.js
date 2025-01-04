@@ -118,9 +118,7 @@ export class Game {
         // Start the frame loop by binding the update method
         this.frameLoop = this.regl.frame(this.update.bind(this));
 
-        // Optionally, you can stop the game immediately after preparation
-        // Uncomment the next line if you want the game to start in a stopped state
-        // this.stopGame();
+        //this.stopGame();
     }
 
     // Start the game by initiating the frame loop
@@ -187,7 +185,7 @@ export class Game {
         this.old_time = now;
 
         // If the game is stopped, do not proceed with updates or rendering
-        if (this.stop) return;
+        //if (this.stop) return;
 
         // If it's the first frame, reset the time difference to avoid large jumps
         if (this.firstFrame){
