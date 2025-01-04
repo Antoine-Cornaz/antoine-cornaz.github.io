@@ -57,7 +57,7 @@ export class LevelController {
     }
 
     updateScore(playerHeight){
-        const newScore = this.oldDisplacement - playerHeight + 1;
+        const newScore = 1000 * (this.oldDisplacement - playerHeight + 1);
 
         if (newScore > this.score){
             this.score = newScore;

@@ -236,7 +236,7 @@ export class Game {
     updateDebugInfo() {
         const debugText = document.getElementById('score');
         if (debugText) {
-            debugText.textContent = `Score: ${this.levelController.getScore().toFixed(2)}`;
+            debugText.textContent = `Score: ${this.levelController.getScore().toFixed(0)}`;
         }
     }
 }

@@ -8,7 +8,7 @@ export class Enemy extends Displayed{
     
     constructor(){
         super(ENEMY_SIZE, ENEMY_SIZE, ENEMY_COLOR);
-        this.setPosition(vec2.fromValues(Math.random()*2 - 1, -2));
+        this.setPosition(vec2.fromValues(Math.random()*2 - 1, -1.3));
     }
 
     update(displacement_y){
