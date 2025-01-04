@@ -78,6 +78,7 @@ The various units of measurement available in CSS:
     color: white;
 
     overflow: hidden;
+    pointer-events: none; /* Ensure it receives mouse events */
 }
 
 #debug-overlay a {

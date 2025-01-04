@@ -198,6 +198,9 @@ export class Game {
         // Update the level controller with the elapsed time
         this.levelController.update(diff_time);
 
+        // Display the debug overlay
+        this.updateDebugInfo();
+
         // Clear the canvas with the sky blue color
         this.regl.clear({
             color: COLORS.blueSky,
@@ -229,5 +232,13 @@ export class Game {
 
         // Draw the player using the defined draw command
         this.drawPlayer(propertiesPlayer);
+    }
+
+    // Update method to set debug info
+    updateDebugInfo() {
+        const debugText = document.getElementById('debug-text');
+        if (debugText) {
+            debugText.textContent = `Score: ${this.levelController.getScore().toFixed(2)}`;
+        }
     }
 }

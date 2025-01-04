@@ -3,8 +3,8 @@ import { Enemy } from "./enemy.js";
 
 // Constants
 const DISTANCE_ENEMIES = 0.4;             // Distance between enemies to spawn
-const SPEED_FALLING_BEGINNING = 1.2;        // Initial falling speed
-const ACCELERATION_FALLING = 0;            // Acceleration of falling speed (set to 0 for constant speed)
+const SPEED_FALLING_BEGINNING = 3;        // Initial falling speed
+const ACCELERATION_FALLING = 0.1;            // Acceleration of falling speed (set to 0 for constant speed)
 
 export class LevelController {
     constructor() {
@@ -36,10 +36,11 @@ export class LevelController {
 
         // Calculate vertical displacement for this update
         const displacementY = this.speed * diffTime;
+        console.log("displacementY", displacementY, this.speed, diffTime);
 
         // Update each enemy's position and remove it if it's above the screen
         this.enemies.forEach(enemy => {
-            enemy.update(diffTime, displacementY);
+            enemy.update(displacementY);
             if (enemy.isAboveScreen()) {
                 this.removeEnemy(enemy);
             }
@@ -65,6 +66,10 @@ export class LevelController {
      */
     clearEnemies() {
         this.enemies = [];
+    }
+
+    getScore(){
+        return this.oldDisplacement;
     }
 
     /**
