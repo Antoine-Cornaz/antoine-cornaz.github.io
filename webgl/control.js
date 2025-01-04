@@ -93,18 +93,19 @@ function handleTouchMove(event, canvas, player) {
 
     const box = canvas.getBoundingClientRect();
 
+    console.log(touch.clientX, touch.clientY, canvas.width, canvas.height, box.left, box.top, box.right, box.bottom)
+
     // Calculate touch position relative to the canvas
     const clientX = touch.clientX - box.left;
     const clientY = touch.clientY - box.top;
 
     // Normalize coordinates to range [-1, 1] for both axes
-    let normalizedX = (4 * clientX) / canvas.width - 1;
-    let normalizedY = -((4 * clientY) / canvas.height - 1); // Invert Y-axis if necessary
+    let normalizedX = (2 * clientX) / box.width - 1;
+    let normalizedY = -((2 * clientY) / box.height - 1); // Invert Y-axis if necessary
 
     normalizedX = Math.min(Math.max(normalizedX, -1), 1);
     normalizedY = Math.min(Math.max(normalizedY, -1), 1);
 
-    //console.log("touch", normalizedX, normalizedY);
     // Update the player's position
     player.setPosition(vec2.fromValues(normalizedX, normalizedY));
 }
