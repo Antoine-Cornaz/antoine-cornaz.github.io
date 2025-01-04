@@ -2,9 +2,9 @@
 import { Enemy } from "./enemy.js";
 
 // Constants
-const DISTANCE_ENEMIES = 0.4;             // Distance between enemies to spawn
+const DISTANCE_ENEMIES = 0.3;             // Distance between enemies to spawn
 const SPEED_FALLING_BEGINNING = 3;        // Initial falling speed
-const ACCELERATION_FALLING = 0.1;            // Acceleration of falling speed (set to 0 for constant speed)
+const ACCELERATION_FALLING = 0.5;            // Acceleration of falling speed (set to 0 for constant speed)
 
 export class LevelController {
     constructor() {

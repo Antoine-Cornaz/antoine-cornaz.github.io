@@ -65,8 +65,11 @@ function handleMouseMove(event, canvas, player) {
     const clientY = event.clientY - rect.top;
 
     // Normalize coordinates to range [-1, 1] for both axes
-    const normalizedX = (2 * clientX) / canvas.width - 1;
-    const normalizedY = -((2 * clientY) / canvas.height - 1); // Invert Y-axis if necessary
+    let normalizedX = (2 * clientX) / canvas.width - 1;
+    let normalizedY = -((2 * clientY) / canvas.height - 1); // Invert Y-axis if necessary
+
+    normalizedX = Math.min(Math.max(normalizedX, -1), 1);
+    normalizedY = Math.min(Math.max(normalizedY, -1), 1);
 
     // Update the player's position
     player.setPosition(vec2.fromValues(normalizedX, normalizedY));
@@ -88,13 +91,18 @@ function handleTouchMove(event, canvas, player) {
     // Use the first touch point for single-touch control
     const touch = event.touches[0];
 
+    const box = canvas.getBoundingClientRect();
+
     // Calculate touch position relative to the canvas
-    const clientX = touch.clientX;
-    const clientY = touch.clientY;
+    const clientX = touch.clientX - box.left;
+    const clientY = touch.clientY - box.top;
 
     // Normalize coordinates to range [-1, 1] for both axes
-    const normalizedX = (4 * clientX) / canvas.width - 1;
-    const normalizedY = -((4 * clientY) / canvas.height - 1); // Invert Y-axis if necessary
+    let normalizedX = (4 * clientX) / canvas.width - 1;
+    let normalizedY = -((4 * clientY) / canvas.height - 1); // Invert Y-axis if necessary
+
+    normalizedX = Math.min(Math.max(normalizedX, -1), 1);
+    normalizedY = Math.min(Math.max(normalizedY, -1), 1);
 
     //console.log("touch", normalizedX, normalizedY);
     // Update the player's position

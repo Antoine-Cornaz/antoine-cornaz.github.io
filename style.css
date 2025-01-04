@@ -74,8 +74,9 @@ The various units of measurement available in CSS:
 
     /* padding: 0 0.5rem 0 0.5rem; */
     border-radius: 0.5rem;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0);
     color: white;
+    max-width: 25%;
 
     overflow: hidden;
     pointer-events: none; /* Ensure it receives mouse events */
@@ -89,8 +90,9 @@ The various units of measurement available in CSS:
 
     /* padding: 0 0.5rem 0 0.5rem; */
     border-radius: 0.5rem;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0);
     color: white;
+    max-width: 25%;
 
     overflow: hidden;
     pointer-events: none; /* Ensure it receives mouse events */
