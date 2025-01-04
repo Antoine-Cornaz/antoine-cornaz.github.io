@@ -34,12 +34,17 @@ export function addListener(canvas, player, restart, lose) {
     }, { passive: false }); // passive: false allows preventDefault()
 
     // Handle touch start (e.g., restart the game)
-    /*canvas.addEventListener('touchstart', (event) => {
+    canvas.addEventListener('touchstart', (event) => {
         // Prevent default behavior to avoid scrolling or other touch actions
         event.preventDefault();
         restart();
         handleTouchMove(event, canvas, player);
-    }, { passive: false });*/
+    }, { passive: false });
+
+    // Handle touch stopping the canvas area
+    canvas.addEventListener('touchend', () => {
+        lose();
+    });
 }
 
 /**
@@ -83,17 +88,15 @@ function handleTouchMove(event, canvas, player) {
     // Use the first touch point for single-touch control
     const touch = event.touches[0];
 
-    // Get the bounding rectangle of the canvas to calculate relative positions
-    const rect = canvas.getBoundingClientRect();
-
     // Calculate touch position relative to the canvas
-    const clientX = touch.clientX - rect.left;
-    const clientY = touch.clientY - rect.top;
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
 
     // Normalize coordinates to range [-1, 1] for both axes
-    const normalizedX = (2 * clientX) / canvas.width - 1;
-    const normalizedY = -((2 * clientY) / canvas.height - 1); // Invert Y-axis if necessary
+    const normalizedX = (4 * clientX) / canvas.width - 1;
+    const normalizedY = -((4 * clientY) / canvas.height - 1); // Invert Y-axis if necessary
 
+    //console.log("touch", normalizedX, normalizedY);
     // Update the player's position
     player.setPosition(vec2.fromValues(normalizedX, normalizedY));
 }

@@ -3,7 +3,7 @@ import { COLORS } from "./colors.js";
 import { Displayed } from "./displayed.js";
 
 export const ENEMY_SIZE = 0.08;
-const ENEMY_COLOR = [0.1, 0.1, 0.1] //COLORS.barrier.slice(0, 3);
+const ENEMY_COLOR = COLORS.barrier.slice(0, 3);
 export class Enemy extends Displayed{
     
     constructor(){
