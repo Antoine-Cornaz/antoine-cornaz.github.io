@@ -1,7 +1,6 @@
 precision mediump float;
 attribute vec2 position;
 uniform mat3 transform;
-uniform vec2 size; // The size of the texture
 varying vec2 uv;
 
 void main() {

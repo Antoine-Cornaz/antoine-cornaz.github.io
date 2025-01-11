@@ -6,6 +6,8 @@ import { load_resources } from "./helper.js"; // Resource loader
 import { addListener } from "./control.js"; // Input controls
 import { Player } from "./player.js"; // Player class
 import { LevelController } from "./levelController.js"; // Level management
+import { ScreenManager } from "./ScreenManager.js";
+import { Enemy } from "./enemy.js";
 
 // Game class encapsulates the entire game logic and rendering
 export class Game {
@@ -83,6 +85,7 @@ export class Game {
 
         // Get the first canvas element from the DOM
         const canvas = document.getElementsByTagName("canvas")[0];
+        const screenManager = new ScreenManager(canvas);
 
         // Add input listeners to the canvas for player controls and game state changes
         addListener(canvas, this.player, this.restart.bind(this), this.lose.bind(this));
@@ -94,51 +97,10 @@ export class Game {
     // Define REGL draw commands for different game objects
     createDrawCommands() {
         // Define a draw command for the player using basic shaders
-        this.drawPlayer = this.regl({
-            vert: this.shaders["basic.vert.glsl"], // Vertex shader
-            frag: this.shaders["basic.frag.glsl"], // Fragment shader
-            attributes: {
-                // Define the player's shape (triangle)
-                position: [
-                    [0, -1],
-                    [-1, 1],
-                    [1, 1],
-                ],
-            },
-            uniforms: {
-                // Uniform variables for color and transformation matrix
-                color: this.regl.prop("color"),
-                transform: this.regl.prop("transform"),
-                texture: this.texture_wingsuit,
-                size: [this.wingsuit_width, this.wingsuit_height]
-            },
-            count: 3, // Number of vertices
-        });
+        this.drawPlayer = this.regl(Player.createDraw(this.regl, this.shaders, this.texture_wingsuit));
 
         // Define a draw command for enemies using basic shaders
-        this.drawEnnemie = this.regl({
-            vert: this.shaders["texture.vert.glsl"], // Vertex shader
-            frag: this.shaders["texture.frag.glsl"], // Fragment shader
-            attributes: {
-                // Define the enemy's shape (rectangle composed of two triangles)
-                position: [
-                    [-1, 1],
-                    [-1, -1],
-                    [1, -1],
-                    [-1, 1],
-                    [1, -1],
-                    [1, 1],
-                ],
-            },
-            uniforms: {
-                // Uniform variables for color and transformation matrix
-                color: this.regl.prop("color"),
-                transform: this.regl.prop("transform"),
-                texture: this.texture_hen,
-                size: [this.hen_width, this.hen_height]
-            },
-            count: 6, // Number of vertices
-        });
+        this.drawEnnemie = this.regl(Enemy.createDraw(this.regl, this.shaders, this.texture_hen));
     }
 
     // Prepare the game by setting up the frame loop
@@ -232,6 +194,15 @@ export class Game {
             color: COLORS.blueSky,
         });
 
+        // Define properties for the player's rendering
+        const propertiesPlayer = {
+            transform: this.player.getTransform(),
+            color: this.player.getColor(),
+        };
+
+        // Draw the player using the defined draw command
+        this.drawPlayer(propertiesPlayer);
+
         // Iterate over each enemy and render them
         this.levelController.getEnemies().forEach((ennemie) => {
             // Define properties for the enemy's rendering
@@ -250,14 +221,7 @@ export class Game {
             }
         });
 
-        // Define properties for the player's rendering
-        const propertiesPlayer = {
-            transform: this.player.getTransform(),
-            color: this.player.getColor(),
-        };
-
-        // Draw the player using the defined draw command
-        this.drawPlayer(propertiesPlayer);
+        
     }
 
     // Update method to set debug info

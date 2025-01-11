@@ -41,4 +41,27 @@ export class Player extends Displayed{
 
         return true
     }
+
+
+    static createDraw(regl, shaders, texture){
+        return {
+            vert: shaders["basic.vert.glsl"], // Vertex shader
+            frag: shaders["basic.frag.glsl"], // Fragment shader
+            attributes: {
+                // Define the player's shape (triangle)
+                position: [
+                    [0, -1],
+                    [-1, 1],
+                    [1, 1],
+                ],
+            },
+            uniforms: {
+                // Uniform variables for color and transformation matrix
+                color: regl.prop("color"),
+                transform: regl.prop("transform"),
+                texture: texture,
+            },
+            count: 3, // Number of vertices
+        }
+    }
 }

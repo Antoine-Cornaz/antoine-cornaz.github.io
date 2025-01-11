@@ -21,5 +21,29 @@ export class Enemy extends Displayed{
         return this.size;
     }
 
+    static createDraw(regl, shaders, texture){
+        return {
+            vert: shaders["texture.vert.glsl"], // Vertex shader
+            frag: shaders["texture.frag.glsl"], // Fragment shader
+            attributes: {
+                // Define the enemy's shape (rectangle composed of two triangles)
+                position: [
+                    [-1, 1],
+                    [-1, -1],
+                    [1, -1],
+                    [-1, 1],
+                    [1, -1],
+                    [1, 1],
+                ],
+            },
+            uniforms: {
+                // Uniform variables for color and transformation matrix
+                color: regl.prop("color"),
+                transform: regl.prop("transform"),
+                texture: texture
+            },
+            count: 6, // Number of vertices
+        }
+    }
 
 }

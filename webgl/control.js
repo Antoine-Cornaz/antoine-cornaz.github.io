@@ -60,19 +60,7 @@ function handleMouseMove(event, canvas, player) {
     // Get the bounding rectangle of the canvas to calculate relative positions
     const rect = canvas.getBoundingClientRect();
 
-    // Calculate mouse position relative to the canvas
-    const clientX = event.clientX - rect.left;
-    const clientY = event.clientY - rect.top;
-
-    // Normalize coordinates to range [-1, 1] for both axes
-    let normalizedX = (2 * clientX) / canvas.width - 1;
-    let normalizedY = -((2 * clientY) / canvas.height - 1); // Invert Y-axis if necessary
-
-    normalizedX = Math.min(Math.max(normalizedX, -1), 1);
-    normalizedY = Math.min(Math.max(normalizedY, -1), 1);
-
-    // Update the player's position
-    player.setPosition(vec2.fromValues(normalizedX, normalizedY));
+    handleMove(event, rect, player);
 }
 
 /**
@@ -93,19 +81,19 @@ function handleTouchMove(event, canvas, player) {
 
     const box = canvas.getBoundingClientRect();
 
-    console.log(touch.clientX, touch.clientY, canvas.width, canvas.height, box.left, box.top, box.right, box.bottom)
+    handleMove(touch, box, player);
+}
 
-    // Calculate touch position relative to the canvas
-    const clientX = touch.clientX - box.left;
-    const clientY = touch.clientY - box.top;
+function handleMove(client, rect, player){
+    const clientX = client.clientX - rect.left;
+    const clientY = client.clientY - rect.top;
 
     // Normalize coordinates to range [-1, 1] for both axes
-    let normalizedX = (2 * clientX) / box.width - 1;
-    let normalizedY = -((2 * clientY) / box.height - 1); // Invert Y-axis if necessary
+    let normalizedX = (2 * clientX) / rect.width - 1;
+    let normalizedY = -((2 * clientY) / rect.height - 1); // Invert Y-axis if necessary
 
     normalizedX = Math.min(Math.max(normalizedX, -1), 1);
     normalizedY = Math.min(Math.max(normalizedY, -1), 1);
 
-    // Update the player's position
     player.setPosition(vec2.fromValues(normalizedX, normalizedY));
 }
