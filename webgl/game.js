@@ -34,10 +34,32 @@ export class Game {
 
         // Flag to control the game state (running or stopped)
         this.stop = false;
+
+        this.texture_hen = null;
+        this.texture_player = null;
     }
 
     // Initialize the game by loading resources and setting up the environment
     async init() {
+
+
+        let image_hen = new Image();
+        image_hen.src = "texture/chicken.webp";
+        image_hen.onload = () => {
+            this.texture_hen = this.regl.texture(image_hen);
+            this.hen_width = image_hen.width
+            this.hen_height = image_hen.height
+        };
+
+        let image_wingsuit = new Image();
+        image_wingsuit.src = "texture/wings2.webp";
+        image_wingsuit.onload = () => {
+            this.texture_wingsuit = this.regl.texture(image_wingsuit);
+            this.wingsuit_width = image_wingsuit.width
+            this.wingsuit_height = image_wingsuit.height
+        };
+
+
         // Load all necessary resources (objects and shaders)
         const resources = await load_resources(this.regl);
         this.objects = resources[0];
@@ -56,6 +78,8 @@ export class Game {
                 this.shaders[key] = await this.shaders[key];
             }
         }
+        
+        
 
         // Get the first canvas element from the DOM
         const canvas = document.getElementsByTagName("canvas")[0];
@@ -85,14 +109,16 @@ export class Game {
                 // Uniform variables for color and transformation matrix
                 color: this.regl.prop("color"),
                 transform: this.regl.prop("transform"),
+                texture: this.texture_wingsuit,
+                size: [this.wingsuit_width, this.wingsuit_height]
             },
             count: 3, // Number of vertices
         });
 
         // Define a draw command for enemies using basic shaders
         this.drawEnnemie = this.regl({
-            vert: this.shaders["basic.vert.glsl"], // Vertex shader
-            frag: this.shaders["basic.frag.glsl"], // Fragment shader
+            vert: this.shaders["texture.vert.glsl"], // Vertex shader
+            frag: this.shaders["texture.frag.glsl"], // Fragment shader
             attributes: {
                 // Define the enemy's shape (rectangle composed of two triangles)
                 position: [
@@ -108,6 +134,8 @@ export class Game {
                 // Uniform variables for color and transformation matrix
                 color: this.regl.prop("color"),
                 transform: this.regl.prop("transform"),
+                texture: this.texture_hen,
+                size: [this.hen_width, this.hen_height]
             },
             count: 6, // Number of vertices
         });
@@ -118,7 +146,7 @@ export class Game {
         // Start the frame loop by binding the update method
         this.frameLoop = this.regl.frame(this.update.bind(this));
 
-        //this.stopGame();
+        this.stopGame();
     }
 
     // Start the game by initiating the frame loop
