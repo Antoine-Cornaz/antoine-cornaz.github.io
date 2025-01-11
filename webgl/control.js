@@ -8,10 +8,10 @@ import { vec2 } from "../lib/gl-matrix/index.js";
  * @param {Function} restart - Function to restart the game.
  * @param {Function} lose - Function to handle losing the game.
  */
-export function addListener(canvas, player, restart, lose) {
+export function addListener(canvas, player, restart, lose, screenManager) {
     // Handle mouse movements
     canvas.addEventListener('mousemove', (event) => {
-        handleMouseMove(event, canvas, player);
+        handleMouseMove(event, canvas, player, screenManager);
     });
 
     // Handle mouse leaving the canvas area
@@ -25,12 +25,12 @@ export function addListener(canvas, player, restart, lose) {
         event.preventDefault();
         restart();
         // Optionally handle player movement on mousedown if needed
-        handleMouseMove(event, canvas, player);
+        handleMouseMove(event, canvas, player, screenManager);
     });
 
     // Handle touch movements
     canvas.addEventListener('touchmove', (event) => {
-        handleTouchMove(event, canvas, player);
+        handleTouchMove(event, canvas, player, screenManager);
     }, { passive: false }); // passive: false allows preventDefault()
 
     // Handle touch start (e.g., restart the game)
@@ -38,7 +38,7 @@ export function addListener(canvas, player, restart, lose) {
         // Prevent default behavior to avoid scrolling or other touch actions
         event.preventDefault();
         restart();
-        handleTouchMove(event, canvas, player);
+        handleTouchMove(event, canvas, player, screenManager);
     }, { passive: false });
 
     // Handle touch stopping the canvas area
@@ -53,14 +53,14 @@ export function addListener(canvas, player, restart, lose) {
  * @param {HTMLCanvasElement} canvas - The canvas element.
  * @param {Object} player - The player object with a move method.
  */
-function handleMouseMove(event, canvas, player) {
+function handleMouseMove(event, canvas, player, screenManager) {
     // Prevent default behavior (optional, depending on game requirements)
     event.preventDefault();
 
     // Get the bounding rectangle of the canvas to calculate relative positions
     const rect = canvas.getBoundingClientRect();
 
-    handleMove(event, rect, player);
+    handleMove(event, rect, player, screenManager);
 }
 
 /**
@@ -69,7 +69,7 @@ function handleMouseMove(event, canvas, player) {
  * @param {HTMLCanvasElement} canvas - The canvas element.
  * @param {Object} player - The player object with a move method.
  */
-function handleTouchMove(event, canvas, player) {
+function handleTouchMove(event, canvas, player, screenManager) {
     // Prevent default touch actions like scrolling
     event.preventDefault();
 
@@ -81,16 +81,16 @@ function handleTouchMove(event, canvas, player) {
 
     const box = canvas.getBoundingClientRect();
 
-    handleMove(touch, box, player);
+    handleMove(touch, box, player, screenManager);
 }
 
-function handleMove(client, rect, player){
+function handleMove(client, rect, player, screenManager) {
     const clientX = client.clientX - rect.left;
     const clientY = client.clientY - rect.top;
 
     // Normalize coordinates to range [-1, 1] for both axes
-    let normalizedX = (2 * clientX) / rect.width - 1;
-    let normalizedY = -((2 * clientY) / rect.height - 1); // Invert Y-axis if necessary
+    let normalizedX = ((2 * clientX) / rect.width - 1)/screenManager.getScaleX();
+    let normalizedY = -((2 * clientY) / rect.height - 1)/screenManager.getScaleY();; // Invert Y-axis if necessary
 
     normalizedX = Math.min(Math.max(normalizedX, -1), 1);
     normalizedY = Math.min(Math.max(normalizedY, -1), 1);

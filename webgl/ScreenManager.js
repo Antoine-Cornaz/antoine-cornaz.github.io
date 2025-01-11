@@ -1,9 +1,11 @@
-import { mat3, mat4, vec3, vec4 } from "../lib/gl-matrix/index.js";
+import { mat3, mat4, vec3, vec4, vec2 } from "../lib/gl-matrix/index.js";
+
+const OPTIMAL_RATIO = 16.0 / 9.0;
 
 export class ScreenManager {
     constructor(canvas) {
         this.canvas = canvas;
-        this.aspectRatio = this.canvas.width / this.canvas.height;
+        this.aspectRatio = this.height / this.width;
         this.transformMatrix = mat3.create();
         this.listeners = [];
 
@@ -19,18 +21,40 @@ export class ScreenManager {
     updateCanvasSize() {
         this.width = this.canvas.width;
         this.height = this.canvas.height;
-        this.aspectRatio = this.width / this.height;
+        this.aspectRatio = this.height / this.width;
     }
 
     // Update the transformation matrix
     updateTransformMatrix() {
-        const scaleX = 2 / this.width;
-        const scaleY = -2 / this.height; // Flip Y for WebGL coordinate system
-
+        const OPTIMAL_RATIO = 16 / 9;
+        this.scaleX = 1;
+        this.scaleY = 1;
+    
+        // Clear the existing matrix
         mat3.identity(this.transformMatrix);
-        mat3.scale(this.transformMatrix, this.transformMatrix, [scaleX, scaleY]);
-        mat3.translate(this.transformMatrix, this.transformMatrix, [-this.width / 2, -this.height / 2]);
+    
+        // Calculate the current aspect ratio
+        this.aspectRatio = this.width / this.height;
+    
+        if (this.aspectRatio > OPTIMAL_RATIO) {
+            // If the screen is wider than 16:9
+             this.scaleX = OPTIMAL_RATIO / this.aspectRatio; // Scale to fit width
+        } else {
+            // If the screen is taller than 16:9
+            this.scaleY = this.aspectRatio / OPTIMAL_RATIO; // Scale to fit height
+            
+        }
+        mat3.scale(this.transformMatrix, this.transformMatrix, [this.scaleX, this.scaleY]);
     }
+
+    getScaleX() {
+        return this.scaleX;
+    }
+
+    getScaleY() {
+        return this.scaleY;
+    }
+    
 
     // Getter for the canvas height
     getHeight() {

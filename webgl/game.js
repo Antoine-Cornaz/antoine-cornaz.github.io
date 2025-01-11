@@ -8,6 +8,8 @@ import { Player } from "./player.js"; // Player class
 import { LevelController } from "./levelController.js"; // Level management
 import { ScreenManager } from "./ScreenManager.js";
 import { Enemy } from "./enemy.js";
+import { mat3 } from "../lib/gl-matrix/index.js";
+import { Frame } from "./frame.js";
 
 // Game class encapsulates the entire game logic and rendering
 export class Game {
@@ -17,6 +19,9 @@ export class Game {
 
         // Initialize player instance
         this.player = new Player();
+
+        // Intialize frame
+        this.frame = new Frame();
 
         // Objects to hold shaders and game objects
         this.shaders = {};
@@ -85,10 +90,10 @@ export class Game {
 
         // Get the first canvas element from the DOM
         const canvas = document.getElementsByTagName("canvas")[0];
-        const screenManager = new ScreenManager(canvas);
+        this.screenManager = new ScreenManager(canvas);
 
         // Add input listeners to the canvas for player controls and game state changes
-        addListener(canvas, this.player, this.restart.bind(this), this.lose.bind(this));
+        addListener(canvas, this.player, this.restart.bind(this), this.lose.bind(this), this.screenManager);
 
         // Create REGL draw commands for rendering objects
         this.createDrawCommands();
@@ -101,6 +106,7 @@ export class Game {
 
         // Define a draw command for enemies using basic shaders
         this.drawEnnemie = this.regl(Enemy.createDraw(this.regl, this.shaders, this.texture_hen));
+        this.drawFrame = this.regl(Frame.createDraw(this.regl, this.shaders, this.texture_background));
     }
 
     // Prepare the game by setting up the frame loop
@@ -194,9 +200,18 @@ export class Game {
             color: COLORS.blueSky,
         });
 
+        // Draw the background
+        const propertiesFrame = {
+            transform: this.screenManager.getTransformMatrix(),
+            color: COLORS.sea.slice(0, 3),
+        };
+        this.drawFrame(propertiesFrame);
+
         // Define properties for the player's rendering
+        let transformation = mat3.create();
+        mat3.multiply(transformation, this.screenManager.getTransformMatrix(), this.player.getTransform());
         const propertiesPlayer = {
-            transform: this.player.getTransform(),
+            transform: transformation,
             color: this.player.getColor(),
         };
 
@@ -206,9 +221,11 @@ export class Game {
         // Iterate over each enemy and render them
         this.levelController.getEnemies().forEach((ennemie) => {
             // Define properties for the enemy's rendering
+            let transformation = mat3.create();
+            mat3.multiply(transformation, this.screenManager.getTransformMatrix(), ennemie.getTransform());
             const propertiesEnnemie = {
                 color: ennemie.getColor(),
-                transform: ennemie.getTransform(),
+                transform: transformation,
             };
 
             // Draw the enemy using the defined draw command
@@ -232,3 +249,5 @@ export class Game {
         }
     }
 }
+
+
