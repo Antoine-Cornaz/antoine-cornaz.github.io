@@ -1,4 +1,5 @@
 // Import the Enemy class from enemy.js
+import { Background } from "./background.js";
 import { Enemy } from "./enemy.js";
 
 // Constants
@@ -14,6 +15,8 @@ export class LevelController {
         //this.totalTime = 0;                    // Total elapsed time
         this.speed = Math.log(SPEED_FALLING_BEGINNING); // Initial speed based on logarithm
         //this.score = 0;                        // Score based on displacement, how far the player can go
+        
+        this.background = new Background(1, 1);
         this.restart();                        // Restart the level
     }
 
@@ -25,6 +28,7 @@ export class LevelController {
         this.oldDisplacement = 0;
         this.totalTime = 0;
         this.score = 0;
+        this.background.reset();
     }
 
     /**
@@ -47,6 +51,8 @@ export class LevelController {
                 this.removeEnemy(enemy);
             }
         });
+
+        this.background.update(displacementY);
 
         // Determine and add new enemies based on displacement
         this.updateEnemyList(displacementY);
@@ -124,5 +130,9 @@ export class LevelController {
         const enemiesToAdd = newAmountEnemy - oldAmountEnemy;
 
         return enemiesToAdd;
+    }
+
+    getBackgroundMatrix() {
+        return this.background.getTransform();
     }
 }

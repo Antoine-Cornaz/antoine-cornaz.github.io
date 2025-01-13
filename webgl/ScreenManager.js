@@ -26,7 +26,7 @@ export class ScreenManager {
 
     // Update the transformation matrix
     updateTransformMatrix() {
-        const OPTIMAL_RATIO = 16 / 9;
+        const OPTIMAL_RATIO = 9 / 16;
         this.scaleX = 1;
         this.scaleY = 1;
     

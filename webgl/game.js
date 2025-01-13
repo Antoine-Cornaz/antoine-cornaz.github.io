@@ -10,6 +10,8 @@ import { ScreenManager } from "./ScreenManager.js";
 import { Enemy } from "./enemy.js";
 import { mat3 } from "../lib/gl-matrix/index.js";
 import { Frame } from "./frame.js";
+import { createDrawFrame, createDrawSquare, createDrawTriangle } from "./draw.js";
+import { Background } from "./background.js";
 
 // Game class encapsulates the entire game logic and rendering
 export class Game {
@@ -44,27 +46,28 @@ export class Game {
 
         this.texture_hen = null;
         this.texture_player = null;
+        this.texture_background = null;
     }
 
     // Initialize the game by loading resources and setting up the environment
     async init() {
 
-
-        let image_hen = new Image();
-        image_hen.src = "texture/chicken.webp";
-        image_hen.onload = () => {
-            this.texture_hen = this.regl.texture(image_hen);
-            this.hen_width = image_hen.width
-            this.hen_height = image_hen.height
-        };
-
-        let image_wingsuit = new Image();
-        image_wingsuit.src = "texture/wings2.webp";
-        image_wingsuit.onload = () => {
-            this.texture_wingsuit = this.regl.texture(image_wingsuit);
-            this.wingsuit_width = image_wingsuit.width
-            this.wingsuit_height = image_wingsuit.height
-        };
+        try {
+            const [henImg, wingsuitImg, backgroundImg] = await Promise.all([
+                loadImage("texture/chicken.webp"),
+                loadImage("texture/wings2.webp")
+                //loadImage("texture/background_tall.png"),
+            ]);
+    
+            this.texture_background = this.regl.texture(backgroundImg);
+            this.texture_hen = this.regl.texture(henImg);
+            this.texture_wingsuit = this.regl.texture(wingsuitImg);
+    
+            console.log("All textures loaded and set.");
+        } catch (error) {
+            console.error("Failed to load one or more images:", error);
+        }
+        
 
 
         // Load all necessary resources (objects and shaders)
@@ -101,12 +104,19 @@ export class Game {
 
     // Define REGL draw commands for different game objects
     createDrawCommands() {
+
+        while (this.texture_hen == null || this.texture_wingsuit == null || this.texture_background == null){
+            console.log("Waiting for textures to load");
+            this.createDrawCommands();
+        }
+
         // Define a draw command for the player using basic shaders
-        this.drawPlayer = this.regl(Player.createDraw(this.regl, this.shaders, this.texture_wingsuit));
+        this.drawPlayer = this.regl(createDrawTriangle(this.regl, this.shaders, this.texture_wingsuit));
 
         // Define a draw command for enemies using basic shaders
-        this.drawEnnemie = this.regl(Enemy.createDraw(this.regl, this.shaders, this.texture_hen));
-        this.drawFrame = this.regl(Frame.createDraw(this.regl, this.shaders, this.texture_background));
+        this.drawEnnemie = this.regl(createDrawSquare(this.regl, this.shaders, this.texture_hen));
+        this.drawFrame = this.regl(createDrawFrame(this.regl, this.shaders));
+        this.drawBackground = this.regl(createDrawSquare(this.regl, this.shaders, this.texture_background));
     }
 
     // Prepare the game by setting up the frame loop
@@ -238,7 +248,13 @@ export class Game {
             }
         });
 
-        
+        let transformation2 = mat3.create();
+        mat3.multiply(transformation2, this.screenManager.getTransformMatrix(), this.levelController.getBackgroundMatrix());
+        const propertiesbackground = {
+            transform: transformation2,
+            color: COLORS.blueSky.slice(0, 3),
+        }
+        this.drawBackground(propertiesbackground);
     }
 
     // Update method to set debug info
@@ -251,3 +267,11 @@ export class Game {
 }
 
 
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+    });
+}
