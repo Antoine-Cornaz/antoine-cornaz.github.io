@@ -1,15 +1,18 @@
 // Import the Enemy class from enemy.js
 import { Background } from "./background.js";
-import { Enemy } from "./enemy.js";
+import { mat3 } from "../lib/gl-matrix/index.js";
+import { randomLevel } from "./level.js";
+
 
 // Constants
 const DISTANCE_ENEMIES = 0.3;             // Distance between enemies to spawn
-const SPEED_FALLING_BEGINNING = 2;        // Initial falling speed
-const ACCELERATION_FALLING = 0.5;            // Acceleration of falling speed (set to 0 for constant speed)
+const SPEED_FALLING_BEGINNING = 1.5;        // Initial falling speed
+const ACCELERATION_FALLING = 0.04;            // Acceleration of falling speed (set to 0 for constant speed)
+const SPACE_BETWEEN_LEVELS = 0.4;
 
 export class LevelController {
     constructor() {
-        this.enemies = [];                     // Array to hold enemy instances
+        this.enemies = new Set([]);                     // Array to hold enemy instances
         this.clearEnemies();                   // Initialize enemies array
         //this.oldDisplacement = 0;              // Track cumulative displacement
         //this.totalTime = 0;                    // Total elapsed time
@@ -29,6 +32,10 @@ export class LevelController {
         this.totalTime = 0;
         this.score = 0;
         this.background.reset();
+        this.levels = new Set([]);
+        this.levelEnd = 1.8;
+        this.addLevel();
+        
     }
 
     /**
@@ -45,22 +52,36 @@ export class LevelController {
         const displacementY = this.speed * diffTime;
 
         // Update each enemy's position and remove it if it's above the screen
-        this.enemies.forEach(enemy => {
+        this.allEnemies().forEach(enemy => {
             enemy.update(displacementY);
             if (enemy.isAboveScreen()) {
-                this.removeEnemy(enemy);
+                this.enemies.delete(enemy);
             }
         });
 
         this.background.update(displacementY);
 
-        // Determine and add new enemies based on displacement
-        this.updateEnemyList(displacementY);
-
         // Update the cumulative displacement
         this.oldDisplacement += displacementY;
+        this.updateSetLevel(this.oldDisplacement);
         this.updateScore(playerHeight);
     }
+
+    addLevel(){
+        const level = randomLevel(this.levelEnd);
+        this.levels.add(level);
+        this.levelEnd = level.getEndY() + SPACE_BETWEEN_LEVELS;
+    }
+
+    cleanLevel(){
+        for (const level of this.levels){
+            if (level.getEndY() < -1.5){
+                this.levels.delete(level);
+            }
+        }
+    }
+
+    *allEnemies() { for (const level of this.levels) { yield* level.getEnemies(); }}
 
     updateScore(playerHeight){
         const newScore = 1000 * (this.oldDisplacement - playerHeight + 1);
@@ -71,18 +92,10 @@ export class LevelController {
     }
 
     /**
-     * Get the list of current enemies.
-     * @returns {Array} Array of enemy instances
-     */
-    getEnemies() {
-        return this.enemies;
-    }
-
-    /**
      * Clear all enemies from the level.
      */
     clearEnemies() {
-        this.enemies = [];
+        this.enemies.clear();
     }
 
     getScore(){
@@ -90,32 +103,13 @@ export class LevelController {
     }
 
     /**
-     * Add a new enemy to the level.
-     * @param {Enemy} enemy - The enemy instance to add
-     */
-    addEnemy(enemy) {
-        this.enemies.push(enemy);
-    }
-
-    /**
-     * Remove an enemy from the level.
-     * @param {Enemy} enemy - The enemy instance to remove
-     */
-    removeEnemy(enemy) {
-        const index = this.enemies.indexOf(enemy);
-        if (index > -1) {
-            this.enemies.splice(index, 1);
-        }
-    }
-
-    /**
      * Update the enemy list by adding new enemies based on displacement.
      * @param {number} displacementY - The vertical displacement since the last update
      */
-    updateEnemyList(displacementY) {
-        const newEnemiesCount = this.getNumberOfNewEnemies(displacementY);
-        for (let i = 0; i < newEnemiesCount; i++) {
-            this.addEnemy(new Enemy());
+    updateSetLevel(totalDisplacement) {
+        this.cleanLevel();
+        if (totalDisplacement < this.levelEnd){
+            this.addLevel();
         }
     }
 
@@ -134,5 +128,26 @@ export class LevelController {
 
     getBackgroundMatrix() {
         return this.background.getTransform();
+    }
+
+    draw(screenManagerMatrix, drawEnemy, lose_callback, collision_callback) {
+        this.allEnemies().forEach((ennemie) => {
+            // Define properties for the enemy's rendering
+            let transformation = mat3.create();
+            mat3.multiply(transformation, screenManagerMatrix, ennemie.getTransform());
+            const propertiesEnnemie = {
+                color: ennemie.getColor(),
+                transform: transformation,
+            };
+
+            // Draw the enemy using the defined draw command
+            drawEnemy(propertiesEnnemie);
+
+            // Check for collision between the player and the enemy
+            if (collision_callback(ennemie)) {
+                // If collision occurs, trigger the lose condition
+                lose_callback();
+            }
+        });
     }
 }

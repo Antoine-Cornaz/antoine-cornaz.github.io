@@ -1,12 +1,13 @@
 import { mat3, mat4, vec3, vec4, vec2 } from "../lib/gl-matrix/index.js";
 
-const OPTIMAL_RATIO = 16.0 / 9.0;
+export const OPTIMAL_RATIO = 9/16;
 
 export class ScreenManager {
     constructor(canvas) {
         this.canvas = canvas;
         this.aspectRatio = this.height / this.width;
         this.transformMatrix = mat3.create();
+        this.squareTransformMatrix = mat3.create();
         this.listeners = [];
 
         // Initialize size and matrix
@@ -26,7 +27,6 @@ export class ScreenManager {
 
     // Update the transformation matrix
     updateTransformMatrix() {
-        const OPTIMAL_RATIO = 9 / 16;
         this.scaleX = 1;
         this.scaleY = 1;
     
@@ -45,6 +45,7 @@ export class ScreenManager {
             
         }
         mat3.scale(this.transformMatrix, this.transformMatrix, [this.scaleX, this.scaleY]);
+        this.squareTransformMatrix = mat3.clone(this.transformMatrix);
     }
 
     getScaleX() {
@@ -69,6 +70,10 @@ export class ScreenManager {
     // Get the transformation matrix for rendering
     getTransformMatrix() {
         return this.transformMatrix;
+    }
+
+    getSquareTransformMatrix() {
+        return this.squareTransformMatrix;
     }
 
     // Add a listener for screen size changes

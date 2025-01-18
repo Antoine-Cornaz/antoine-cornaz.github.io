@@ -1,14 +1,15 @@
 import {vec2, mat3, mat4, vec3, vec4} from "../lib/gl-matrix/index.js";
 import { COLORS } from "./colors.js";
 import { Displayed } from "./displayed.js";
+import { OPTIMAL_RATIO } from "./ScreenManager.js";
 
-const PLAYER_HEIGHT = 0.10;
-const PLAYER_DEFAULT_WIDTH = 0.10;
+const HALF_PLAYER_HEIGHT = 0.10;
+const HALF_PLAYER_DEFAULT_WIDTH = HALF_PLAYER_HEIGHT/OPTIMAL_RATIO;
 const PLAYER_COLOR = COLORS.floor.slice(0, 3)
 export class Player extends Displayed{
 
     constructor(){
-        super(0.1, 0.1, PLAYER_COLOR);
+        super(HALF_PLAYER_DEFAULT_WIDTH, HALF_PLAYER_HEIGHT, PLAYER_COLOR);
         this.reset()
     }
 
@@ -35,7 +36,7 @@ export class Player extends Displayed{
         
         const y_increase = obstaclePosition[1] - playerPosition[1]
 
-        if (2*diff_x - y_increase >= 3*enemy.getHeight() + this.getHeight()){
+        if (OPTIMAL_RATIO*2*diff_x - y_increase >= 3*enemy.getHeight() + this.getHeight()){
             return false
         }
 

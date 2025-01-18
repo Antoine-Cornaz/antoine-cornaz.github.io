@@ -54,7 +54,7 @@ export class Game {
 
         try {
             const [henImg, wingsuitImg, backgroundImg] = await Promise.all([
-                loadImage("texture/chicken.webp"),
+                loadImage("texture/hen_small.png"),
                 loadImage("texture/wings2.webp")
                 //loadImage("texture/background_tall.png"),
             ]);
@@ -114,7 +114,7 @@ export class Game {
         this.drawPlayer = this.regl(createDrawTriangle(this.regl, this.shaders, this.texture_wingsuit));
 
         // Define a draw command for enemies using basic shaders
-        this.drawEnnemie = this.regl(createDrawSquare(this.regl, this.shaders, this.texture_hen));
+        this.drawEnemie = this.regl(createDrawSquare(this.regl, this.shaders, this.texture_hen));
         this.drawFrame = this.regl(createDrawFrame(this.regl, this.shaders));
         this.drawBackground = this.regl(createDrawSquare(this.regl, this.shaders, this.texture_background));
     }
@@ -190,6 +190,8 @@ export class Game {
         let diff_time = now - this.old_time;
         this.old_time = now;
 
+        //console.log("fps", 1/diff_time);
+
         // If the game is stopped, do not proceed with updates or rendering
         //if (this.stop) return;
 
@@ -228,28 +230,16 @@ export class Game {
         // Draw the player using the defined draw command
         this.drawPlayer(propertiesPlayer);
 
-        // Iterate over each enemy and render them
-        this.levelController.getEnemies().forEach((ennemie) => {
-            // Define properties for the enemy's rendering
-            let transformation = mat3.create();
-            mat3.multiply(transformation, this.screenManager.getTransformMatrix(), ennemie.getTransform());
-            const propertiesEnnemie = {
-                color: ennemie.getColor(),
-                transform: transformation,
-            };
-
-            // Draw the enemy using the defined draw command
-            this.drawEnnemie(propertiesEnnemie);
-
-            // Check for collision between the player and the enemy
-            if (this.player.checkCollision(ennemie)) {
-                // If collision occurs, trigger the lose condition
-                this.lose();
-            }
-        });
+        this.levelController.draw(this.screenManager.getSquareTransformMatrix(),
+                                    this.drawEnemie, this.lose.bind(this),
+                                    this.player.checkCollision.bind(this.player));
+        
 
         let transformation2 = mat3.create();
-        mat3.multiply(transformation2, this.screenManager.getTransformMatrix(), this.levelController.getBackgroundMatrix());
+        mat3.multiply(transformation2, 
+                        this.screenManager.getTransformMatrix(), 
+                        this.levelController.getBackgroundMatrix());
+        
         const propertiesbackground = {
             transform: transformation2,
             color: COLORS.blueSky.slice(0, 3),
