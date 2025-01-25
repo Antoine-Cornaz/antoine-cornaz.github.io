@@ -53,17 +53,38 @@ export class Game {
     async init() {
 
         try {
-            const [henImg, wingsuitImg, backgroundImg] = await Promise.all([
+            const [henImg, wingsuitImg] = await Promise.all([
                 loadImage("texture/hen_small.png"),
-                loadImage("texture/wings2.webp")
+                loadImage("texture/wingsuit_hexa.png"),
                 //loadImage("texture/background_tall.png"),
             ]);
     
-            this.texture_background = this.regl.texture(backgroundImg);
             this.texture_hen = this.regl.texture(henImg);
             this.texture_wingsuit = this.regl.texture(wingsuitImg);
+
+            const clouds = await Promise.all([
+                loadImage("texture/cloud/cloud1.png"),
+                loadImage("texture/cloud/cloud2.png"),
+                loadImage("texture/cloud/cloud3.png"),
+                loadImage("texture/cloud/cloud4.png"),
+                loadImage("texture/cloud/cloud5.png"),
+                loadImage("texture/cloud/cloud6.png"),
+                loadImage("texture/cloud/cloud7.png"),
+                loadImage("texture/cloud/cloud8.png"),
+                loadImage("texture/cloud/cloud9.png"),
+                loadImage("texture/cloud/cloud10.png"),
+                loadImage("texture/cloud/cloud11.png"),
+                loadImage("texture/cloud/cloud12.png"),
+                loadImage("texture/cloud/cloud13.png"),
+                loadImage("texture/cloud/cloud14.png"),
+                loadImage("texture/cloud/cloud15.png"),
+            ]);
+
+            // load all cloud textures
+            this.texture_clouds = clouds.map(cloud => this.regl.texture(cloud));
+
     
-            console.log("All textures loaded and set.");
+            //console.log("All textures loaded and set.");
         } catch (error) {
             console.error("Failed to load one or more images:", error);
         }
@@ -105,18 +126,13 @@ export class Game {
     // Define REGL draw commands for different game objects
     createDrawCommands() {
 
-        while (this.texture_hen == null || this.texture_wingsuit == null || this.texture_background == null){
-            console.log("Waiting for textures to load");
-            this.createDrawCommands();
-        }
-
         // Define a draw command for the player using basic shaders
         this.drawPlayer = this.regl(createDrawTriangle(this.regl, this.shaders, this.texture_wingsuit));
 
         // Define a draw command for enemies using basic shaders
         this.drawEnemie = this.regl(createDrawSquare(this.regl, this.shaders, this.texture_hen));
         this.drawFrame = this.regl(createDrawFrame(this.regl, this.shaders));
-        this.drawBackground = this.regl(createDrawSquare(this.regl, this.shaders, this.texture_background));
+        this.drawBackground = this.regl(createDrawSquare(this.regl, this.shaders, this.texture_clouds[0]));
     }
 
     // Prepare the game by setting up the frame loop
@@ -190,11 +206,6 @@ export class Game {
         let diff_time = now - this.old_time;
         this.old_time = now;
 
-        //console.log("fps", 1/diff_time);
-
-        // If the game is stopped, do not proceed with updates or rendering
-        //if (this.stop) return;
-
         // If it's the first frame, reset the time difference to avoid large jumps
         if (this.firstFrame){
             diff_time = 0;
@@ -203,6 +214,7 @@ export class Game {
 
         // Update the level controller with the elapsed time
         this.levelController.update(diff_time, this.player.getPosition()[1]);
+        this.player.update(diff_time);
 
         // Display the debug overlay
         this.updateDebugInfo();
@@ -212,7 +224,7 @@ export class Game {
             color: COLORS.blueSky,
         });
 
-        // Draw the background
+        // Draw the frame
         const propertiesFrame = {
             transform: this.screenManager.getTransformMatrix(),
             color: COLORS.sea.slice(0, 3),
@@ -244,7 +256,7 @@ export class Game {
             transform: transformation2,
             color: COLORS.blueSky.slice(0, 3),
         }
-        this.drawBackground(propertiesbackground);
+        //this.drawBackground(propertiesbackground);
     }
 
     // Update method to set debug info

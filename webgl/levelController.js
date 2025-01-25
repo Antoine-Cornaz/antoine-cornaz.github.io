@@ -19,7 +19,7 @@ export class LevelController {
         this.speed = Math.log(SPEED_FALLING_BEGINNING); // Initial speed based on logarithm
         //this.score = 0;                        // Score based on displacement, how far the player can go
         
-        this.background = new Background(1, 1);
+        this.background = new Background();
         this.restart();                        // Restart the level
     }
 

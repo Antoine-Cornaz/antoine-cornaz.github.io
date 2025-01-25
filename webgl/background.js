@@ -1,11 +1,10 @@
 import {Displayed} from "./displayed.js";
 import {vec2, mat3} from "../lib/gl-matrix/index.js";
 
-
 export class Background extends Displayed{
 
-    constructor(width, height) {
-        super(width, height);
+    constructor(textures) {
+        super(0.1, 0.1);
         this.reset();
     }
 

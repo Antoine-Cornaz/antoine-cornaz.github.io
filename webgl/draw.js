@@ -51,8 +51,8 @@ export function createDrawSquare(regl, shaders, texture){
     return createDrawTexture(regl, texture, squareVert, shaders["texture.vert.glsl"], shaders["texture.frag.glsl"], 6)
 }
 
-export function createDrawTriangle(regl, shaders){
-    return createDrawColor(regl, triangleVert, shaders["basic.vert.glsl"], shaders["basic.frag.glsl"], 3)
+export function createDrawTriangle(regl, shaders, texture){
+    return createDrawTexture(regl, texture, triangleVert, shaders["texture.vert.glsl"], shaders["texture.frag.glsl"], 3)
 }
 
 export function createDrawFrame(regl, shaders){
