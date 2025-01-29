@@ -55,7 +55,7 @@ export class Game {
         try {
             const [henImg, wingsuitImg] = await Promise.all([
                 loadImage("texture/hen_small.png"),
-                loadImage("texture/wingsuit_hexa.png"),
+                loadImage("texture/wing.png"),
                 //loadImage("texture/background_tall.png"),
             ]);
     
