@@ -3,7 +3,7 @@ import { COLORS } from "./colors.js";
 import { Displayed } from "./displayed.js";
 import { OPTIMAL_RATIO } from "./ScreenManager.js";
 
-const HALF_PLAYER_HEIGHT = 0.10;
+const HALF_PLAYER_HEIGHT = 0.90;
 const HALF_PLAYER_DEFAULT_WIDTH = HALF_PLAYER_HEIGHT/OPTIMAL_RATIO;
 const PLAYER_COLOR = COLORS.floor.slice(0, 3)
 
@@ -23,6 +23,16 @@ export class Player extends Displayed{
     reset(){
         this.setPosition(vec2.fromValues(0.2, 0.4))
         this.setColors(PLAYER_COLOR)
+    }
+
+    /**
+     * Set the position of the object.
+     * @param {vec2} position - New position vector
+     */
+    setPosition(position) {
+        position[0] = Math.min(Math.max(position[0], -9), 9);
+        position[1] = Math.min(Math.max(position[1], -16), 16);
+        vec2.copy(this.position, position);
     }
 
     

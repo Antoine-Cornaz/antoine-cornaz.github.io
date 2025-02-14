@@ -7,11 +7,8 @@ import { addListener } from "./control.js"; // Input controls
 import { Player } from "./player.js"; // Player class
 import { LevelController } from "./levelController.js"; // Level management
 import { ScreenManager } from "./ScreenManager.js";
-import { Enemy } from "./enemy.js";
 import { mat3 } from "../lib/gl-matrix/index.js";
-import { Frame } from "./frame.js";
 import { createDrawFrame, createDrawSquare, createDrawTriangle } from "./draw.js";
-import { Background } from "./background.js";
 
 // Game class encapsulates the entire game logic and rendering
 export class Game {
@@ -21,9 +18,6 @@ export class Game {
 
         // Initialize player instance
         this.player = new Player();
-
-        // Intialize frame
-        this.frame = new Frame();
 
         // Objects to hold shaders and game objects
         this.shaders = {};
@@ -242,7 +236,7 @@ export class Game {
         // Draw the player using the defined draw command
         this.drawPlayer(propertiesPlayer);
 
-        this.levelController.draw(this.screenManager.getSquareTransformMatrix(),
+        this.levelController.draw(this.screenManager.getTransformMatrix(),
                                     this.drawEnemie, this.lose.bind(this),
                                     this.player.checkCollision.bind(this.player));
         

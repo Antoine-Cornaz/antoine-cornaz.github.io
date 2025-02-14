@@ -15,34 +15,36 @@ const triangleVert = [
     [1, 1],
 ]
 
-const c = 20; // Max size of background frame
+const c = 200; // Max size of background frame
+const h = 16;
+const w = 9;
 const frameVert = [
     [-c, -c],
-    [-1, c],
-    [-1, -c],
+    [-w, c],
+    [-w, -c],
     [-c, -c],
-    [-1, c],
+    [-w, c],
     [-c, c],
 
     [c, -c],
-    [1, c],
-    [1, -c],
+    [w, c],
+    [w, -c],
     [c, -c],
-    [1, c],
+    [w, c],
     [c, c],
 
     [-c, c],
-    [c, 1],
-    [-c, 1],
+    [c, h],
+    [-c, h],
     [-c, c],
-    [c, 1],
+    [c, h],
     [c, c],
 
     [-c, -c],
-    [c, -1],
-    [-c, -1],
+    [c, -h],
+    [-c, -h],
     [-c, -c],
-    [c, -1],
+    [c, -h],
     [c, -c],
 ]
 

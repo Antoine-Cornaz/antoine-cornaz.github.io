@@ -2,13 +2,14 @@
 import { Background } from "./background.js";
 import { mat3 } from "../lib/gl-matrix/index.js";
 import { randomLevel } from "./level.js";
+import {HEIGHT} from "./ScreenManager.js";
 
 
 // Constants
 const DISTANCE_ENEMIES = 0.3;             // Distance between enemies to spawn
-const SPEED_FALLING_BEGINNING = 1.5;        // Initial falling speed
-const ACCELERATION_FALLING = 0.04;            // Acceleration of falling speed (set to 0 for constant speed)
-const SPACE_BETWEEN_LEVELS = 0.4;
+const SPEED_FALLING_BEGINNING = 50;        // Initial falling speed
+const ACCELERATION_FALLING = 3;            // Acceleration of falling speed (set to 0 for constant speed)
+const SPACE_BETWEEN_LEVELS = 3.6;
 
 export class LevelController {
     constructor() {
@@ -33,7 +34,7 @@ export class LevelController {
         this.score = 0;
         this.background.reset();
         this.levels = new Set([]);
-        this.levelEnd = 1.8;
+        this.levelEnd = HEIGHT;
         this.addLevel();
         
     }
@@ -53,7 +54,7 @@ export class LevelController {
 
         // Update each enemy's position and remove it if it's above the screen
         this.allEnemies().forEach(enemy => {
-            enemy.update(displacementY);
+            enemy.update(displacementY, diffTime);
             if (enemy.isAboveScreen()) {
                 this.enemies.delete(enemy);
             }
@@ -84,7 +85,7 @@ export class LevelController {
     *allEnemies() { for (const level of this.levels) { yield* level.getEnemies(); }}
 
     updateScore(playerHeight){
-        const newScore = 1000 * (this.oldDisplacement - playerHeight + 1);
+        const newScore = 1000 * (this.oldDisplacement - playerHeight + HEIGHT);
 
         if (newScore > this.score){
             this.score = newScore;

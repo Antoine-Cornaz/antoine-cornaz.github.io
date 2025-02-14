@@ -3,7 +3,7 @@ import { COLORS } from "./colors.js";
 import { Displayed } from "./displayed.js";
 import { OPTIMAL_RATIO } from "./ScreenManager.js";
 
-export const HALF_ENEMY_HEIGHT = 0.07;
+export const HALF_ENEMY_HEIGHT = 0.6;
 export const HALF_ENEMY_WIDTH = HALF_ENEMY_HEIGHT/OPTIMAL_RATIO;
 const ENEMY_COLOR = COLORS.barrier.slice(0, 3);
 
@@ -23,7 +23,7 @@ export class Enemy extends Displayed{
         this.setPosition(vec2.fromValues(x, y));
     }
 
-    update(displacement_y){
+    update(displacement_y, diffTime){
         const position = this.getPosition();
         vec2.add(position, position, vec2.fromValues(0, displacement_y));
         this.setPosition(position);

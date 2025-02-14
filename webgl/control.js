@@ -90,10 +90,8 @@ function handleMove(client, rect, player, screenManager) {
 
     // Normalize coordinates to range [-1, 1] for both axes
     let normalizedX = ((2 * clientX) / rect.width - 1)/screenManager.getScaleX();
-    let normalizedY = -((2 * clientY) / rect.height - 1)/screenManager.getScaleY();; // Invert Y-axis if necessary
+    let normalizedY = -((2 * clientY) / rect.height - 1)/screenManager.getScaleY(); // Invert Y-axis if necessary
 
-    normalizedX = Math.min(Math.max(normalizedX, -1), 1);
-    normalizedY = Math.min(Math.max(normalizedY, -1), 1);
 
     player.setPosition(vec2.fromValues(normalizedX, normalizedY));
 }

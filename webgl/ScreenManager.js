@@ -1,13 +1,14 @@
 import { mat3, mat4, vec3, vec4, vec2 } from "../lib/gl-matrix/index.js";
 
-export const OPTIMAL_RATIO = 9/16;
+export const WIDTH = 9
+export const HEIGHT = 16
+export const OPTIMAL_RATIO = WIDTH/HEIGHT;
 
 export class ScreenManager {
     constructor(canvas) {
         this.canvas = canvas;
         this.aspectRatio = this.height / this.width;
         this.transformMatrix = mat3.create();
-        this.squareTransformMatrix = mat3.create();
         this.listeners = [];
 
         // Initialize size and matrix
@@ -27,25 +28,29 @@ export class ScreenManager {
 
     // Update the transformation matrix
     updateTransformMatrix() {
-        this.scaleX = 1;
-        this.scaleY = 1;
-    
-        // Clear the existing matrix
-        mat3.identity(this.transformMatrix);
-    
-        // Calculate the current aspect ratio
+        // Calculate the aspect ratio based on the width and height
         this.aspectRatio = this.width / this.height;
-    
+
+        // Initialize scale factors
+        let scaleX = 1/WIDTH;
+        let scaleY = 1/HEIGHT;
+
+        // Check if the screen is wider or taller than the optimal aspect ratio (16:9)
         if (this.aspectRatio > OPTIMAL_RATIO) {
-            // If the screen is wider than 16:9
-             this.scaleX = OPTIMAL_RATIO / this.aspectRatio; // Scale to fit width
+            // If the screen is wider, we scale to fit height
+            scaleX = scaleX / this.aspectRatio * OPTIMAL_RATIO;
         } else {
-            // If the screen is taller than 16:9
-            this.scaleY = this.aspectRatio / OPTIMAL_RATIO; // Scale to fit height
-            
+            // If the screen is taller, we scale to fit width
+            scaleY = scaleY / OPTIMAL_RATIO * this.aspectRatio;
         }
-        mat3.scale(this.transformMatrix, this.transformMatrix, [this.scaleX, this.scaleY]);
-        this.squareTransformMatrix = mat3.clone(this.transformMatrix);
+
+        // Apply the scaling factors to the transformation matrix
+        mat3.identity(this.transformMatrix); // Clear the existing matrix
+        mat3.scale(this.transformMatrix, this.transformMatrix, [scaleX, scaleY]);
+
+        // Set the scaling factors
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
     }
 
     getScaleX() {
@@ -55,7 +60,6 @@ export class ScreenManager {
     getScaleY() {
         return this.scaleY;
     }
-    
 
     // Getter for the canvas height
     getHeight() {
@@ -70,10 +74,6 @@ export class ScreenManager {
     // Get the transformation matrix for rendering
     getTransformMatrix() {
         return this.transformMatrix;
-    }
-
-    getSquareTransformMatrix() {
-        return this.squareTransformMatrix;
     }
 
     // Add a listener for screen size changes
