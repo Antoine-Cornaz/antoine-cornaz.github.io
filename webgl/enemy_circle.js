@@ -1,5 +1,5 @@
 import {Enemy} from "./enemy.js";
-import {vec2} from "../lib/gl-matrix";
+import {vec2} from "../lib/gl-matrix/index.js";
 
 const ANGULAR_VELOCITY = -0.6;
 export class Enemy_circle extends Enemy{
