@@ -1,5 +1,5 @@
 // Import necessary modules from gl-matrix for vector and matrix operations
-import { vec2, mat3 } from "../lib/gl-matrix/index.js";
+import {mat3, vec2} from "../lib/gl-matrix/index.js";
 
 export class Displayed {
     /**
@@ -7,19 +7,24 @@ export class Displayed {
      * @param {number} width - Width of the displayed object
      * @param {number} height - Height of the displayed object
      * @param {Array} color - RGB color array
+     * @param {number} rising - how much it go up with the screen
      */
-    constructor(width, height, color) {
-        this.position = vec2.fromValues(0, 0);  // Initial position at the origin
+    constructor(width, height, color, rising = 1) {
+
         this.width = width;                      // Width of the object
         this.height = height;                    // Height of the object
         this.color = color || [0.4, 0.7, 0.2];   // Default color if none provided
+        this.rising = rising;
+
+        this.position = vec2.fromValues(0, 0);  // Initial position at the origin, need to be changed by subclass
+        this.screenMovingY = 0
     }
 
     /**
      * Set the position of the object.
      * @param {vec2} position - New position vector
      */
-    setPosition(position) {
+    setRelativePosition(position) {
         vec2.copy(this.position, position);
     }
 
@@ -36,8 +41,12 @@ export class Displayed {
      * Get the current position of the object.
      * @returns {vec2} Current position vector
      */
-    getPosition() {
+    getRelativePosition() {
         return this.position;
+    }
+
+    getAbsolutePosition() {
+        return vec2.fromValues(this.position[0], this.position[1] + this.screenMovingY)
     }
 
     /**
@@ -46,9 +55,15 @@ export class Displayed {
      */
     getTransform() {
         const matrix = mat3.create();
-        mat3.translate(matrix, matrix, this.position);
+        //mat3.translate(matrix, matrix, this.position);
+        const pos = this.getAbsolutePosition();
+        mat3.fromTranslation(matrix, pos)
         mat3.scale(matrix, matrix, vec2.fromValues(this.width, this.height));
         return matrix;
+    }
+
+    update(displacement_y, diffTime){
+        this.screenMovingY += displacement_y*this.rising
     }
 
     /**

@@ -1,15 +1,15 @@
 import {Enemy} from "./enemy.js";
 import {vec2} from "../lib/gl-matrix/index.js";
 
-const ANGULAR_VELOCITY = -0.6;
 export class Enemy_circle extends Enemy{
 
-    constructor(centerX, centerY, alpha_0, radius) {
+    constructor(centerX, centerY, alpha_0, radius, angular_velocity) {
         super(centerX + Math.cos(alpha_0) * radius, centerY + Math.sin(alpha_0) * radius);
         this.centerX = centerX;
         this.centerY = centerY;
         this.alpha = alpha_0;
         this.radius = radius;
+        this.angular_velocity = angular_velocity;
     }
 
     newX(){
@@ -23,13 +23,12 @@ export class Enemy_circle extends Enemy{
     update(displacement_y, diffTime) {
         super.update(displacement_y, diffTime);
 
-        this.alpha += diffTime*ANGULAR_VELOCITY;
-        this.centerY += displacement_y;
+        this.alpha += diffTime*this.angular_velocity;
 
         const newX = this.newX();
         const newY = this.newY();
 
-        this.setPosition(vec2.fromValues(newX, newY));
+        this.setRelativePosition(vec2.fromValues(newX, newY));
     }
 
 }

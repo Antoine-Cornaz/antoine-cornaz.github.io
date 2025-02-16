@@ -93,5 +93,5 @@ function handleMove(client, rect, player, screenManager) {
     let normalizedY = -((2 * clientY) / rect.height - 1)/screenManager.getScaleY(); // Invert Y-axis if necessary
 
 
-    player.setPosition(vec2.fromValues(normalizedX, normalizedY));
+    player.setRelativePosition(vec2.fromValues(normalizedX, normalizedY));
 }

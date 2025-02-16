@@ -2,7 +2,7 @@
 import { Background } from "./background.js";
 import { mat3 } from "../lib/gl-matrix/index.js";
 import { randomLevel } from "./level.js";
-import {HEIGHT} from "./ScreenManager.js";
+import { HEIGHT } from "./ScreenManager.js";
 
 
 // Constants
@@ -41,20 +41,21 @@ export class LevelController {
 
     /**
      * Update the level state based on the elapsed time.
-     * @param {number} diffTime - Time difference since the last update (in seconds)
+     * @param {number} diffTimeS - Time difference since the last update (in seconds)
+     * @param {number} playerHeightPosition - The y position of the player (for the score)
      */
-    update(diffTime, playerHeight) {
-        this.totalTime += diffTime;
+    update(diffTimeS, playerHeightPosition) {
+        this.totalTime += diffTimeS;
 
         // Update speed based on total time and acceleration
         this.speed = Math.log(this.totalTime * ACCELERATION_FALLING + SPEED_FALLING_BEGINNING);
 
         // Calculate vertical displacement for this update
-        const displacementY = this.speed * diffTime;
+        const displacementY = this.speed * diffTimeS;
 
         // Update each enemy's position and remove it if it's above the screen
         this.allEnemies().forEach(enemy => {
-            enemy.update(displacementY, diffTime);
+            enemy.update(displacementY, diffTimeS);
             if (enemy.isAboveScreen()) {
                 this.enemies.delete(enemy);
             }
@@ -65,7 +66,7 @@ export class LevelController {
         // Update the cumulative displacement
         this.oldDisplacement += displacementY;
         this.updateSetLevel(this.oldDisplacement);
-        this.updateScore(playerHeight);
+        this.updateScore(playerHeightPosition);
     }
 
     addLevel(){

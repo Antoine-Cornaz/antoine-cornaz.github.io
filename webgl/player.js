@@ -13,7 +13,7 @@ const LAST_VITESSE_RECORD = 10
 export class Player extends Displayed{
 
     constructor(){
-        super(HALF_PLAYER_DEFAULT_WIDTH, HALF_PLAYER_HEIGHT, PLAYER_COLOR);
+        super(HALF_PLAYER_DEFAULT_WIDTH, HALF_PLAYER_HEIGHT, PLAYER_COLOR, 0);
         this.reset()
         this.old_position_y = 0
         this.vitesse_y = 0
@@ -21,7 +21,7 @@ export class Player extends Displayed{
     }
 
     reset(){
-        this.setPosition(vec2.fromValues(0.2, 0.4))
+        this.setRelativePosition(vec2.fromValues(0.2, 0.4))
         this.setColors(PLAYER_COLOR)
     }
 
@@ -29,7 +29,7 @@ export class Player extends Displayed{
      * Set the position of the object.
      * @param {vec2} position - New position vector
      */
-    setPosition(position) {
+    setRelativePosition(position) {
         position[0] = Math.min(Math.max(position[0], -9), 9);
         position[1] = Math.min(Math.max(position[1], -16), 16);
         vec2.copy(this.position, position);
@@ -37,12 +37,16 @@ export class Player extends Displayed{
 
     
     update(diff_time){
+        super.update(diff_time);
         this.update_width(diff_time)
     }
 
+    /***
+      * The width of the player is smaller when the player go fast to mimic a free dive.
+     */
     update_width(diff_time){
         diff_time = Math.max(diff_time, 0.01)
-        const position_y = this.getPosition()[1]
+        const position_y = this.getRelativePosition()[1]
         const old_position_y = this.old_position_y
         this.old_position_y = position_y
         let new_vitess_y = (position_y - old_position_y)/diff_time
@@ -60,8 +64,8 @@ export class Player extends Displayed{
 
 
     checkCollision(enemy){
-        const playerPosition = this.getPosition()
-        const obstaclePosition = enemy.getPosition()
+        const playerPosition = this.getRelativePosition()
+        const obstaclePosition = enemy.getAbsolutePosition()
 
         const diff_x = Math.abs(playerPosition[0] - obstaclePosition[0])
         const diff_y = Math.abs(playerPosition[1] - obstaclePosition[1])

@@ -4,7 +4,7 @@ import {vec2, mat3} from "../lib/gl-matrix/index.js";
 export class Background extends Displayed{
 
     constructor(textures) {
-        super(0.1, 0.1);
+        super(10, 10, undefined, 0.8);
         this.reset();
     }
 
@@ -13,6 +13,7 @@ export class Background extends Displayed{
     }
 
     update(displacementY){
+        super.update(displacementY);
         this.move(vec2.fromValues(0, displacementY/5.0));
     }
 

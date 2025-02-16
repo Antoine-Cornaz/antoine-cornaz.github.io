@@ -1,6 +1,7 @@
 import { Enemy } from './enemy.js';
-import { OPTIMAL_RATIO } from "./ScreenManager.js";
+import {OPTIMAL_RATIO, WIDTH} from "./ScreenManager.js";
 import {Enemy_circle} from "./enemy_circle.js";
+import {Enemy_line} from "./enemy_line.js";
 
 // Level Constants
 const SIZE_LEVEL_1 = 28.8;
@@ -10,6 +11,7 @@ const NUMBER_ENEMIES_START = 3;
 const NUMBER_ENEMIES_SINUS = 8;
 const NUMBER_ENEMIES_CIRCLE = 16;
 const RADIUS_ENEMIES_CIRCLE = 8.4;
+const ANGULAR_VELOCITY = -0.6
 const EXTRA_MARGE_LVL3 = 2;
 
 // Utility function to create an array of enemies at specific positions
@@ -27,11 +29,12 @@ function createEnemies(positions, start_y, size = 1) {
 
 // Abstract Level Class
 class Level {
-    constructor(size) {
+    constructor(size, start_y) {
         if (new.target === Level) {
             throw new Error("Abstract classes can't be instantiated.");
         }
         this.size = size;
+        this.start_height = start_y;
     }
 
     getSize() {
@@ -50,8 +53,7 @@ class Level {
 // Level 1 Class
 class Level1 extends Level {
     constructor(start_y) {
-        super(SIZE_LEVEL_1);
-        this.start_height = start_y;
+        super(SIZE_LEVEL_1, start_y);
 
         const enemyByRow = Math.floor(Math.random() * 3 + 2);
         const enemyRows = [
@@ -68,8 +70,7 @@ class Level1 extends Level {
 // Level 2 Class
 class Level2 extends Level {
     constructor(start_y) {
-        super((NUMBER_ENEMIES_START + NUMBER_ENEMIES_SINUS) * NORMAL_SPACE_ENEMIES_CLOSE);
-        this.start_height = start_y;
+        super((NUMBER_ENEMIES_START + NUMBER_ENEMIES_SINUS) * NORMAL_SPACE_ENEMIES_CLOSE, start_y);
 
         this.enemies = new Set();
 
@@ -100,23 +101,58 @@ class Level2 extends Level {
 // Level 3 Class
 class Level3 extends Level {
     constructor(start_y) {
-        super(RADIUS_ENEMIES_CIRCLE * 2 + EXTRA_MARGE_LVL3);
-        this.start_height = start_y;
+        super(RADIUS_ENEMIES_CIRCLE * 2 + EXTRA_MARGE_LVL3, start_y);
 
         // Create circular enemies, skipping two to allow player pass
         const enemyPositions = Array.from({ length: NUMBER_ENEMIES_CIRCLE }).map((_, i) => {
             if (i % (NUMBER_ENEMIES_CIRCLE / 2) === 0) return null; // Skip every other enemy
             const alpha = (i * 2 * Math.PI) / NUMBER_ENEMIES_CIRCLE;
-            return new Enemy_circle(0, -start_y - RADIUS_ENEMIES_CIRCLE, alpha, RADIUS_ENEMIES_CIRCLE);
+            return new Enemy_circle(0, -start_y - RADIUS_ENEMIES_CIRCLE, alpha, RADIUS_ENEMIES_CIRCLE, ANGULAR_VELOCITY);
         }).filter(Boolean);
 
         this.enemies = new Set(enemyPositions);
     }
 }
 
+const NUMBER_LINE_OF_ENEMIES = 3
+const SPACE_BETWEEN_ENEMIES_HORIZONTAL = 3.2
+const SPACE_BETWEEN_ENEMIES_VERTICAL = 10
+const NUMBER_ENEMIES_PER_LINE = 5
+const TIME_MOVE_SEC = 0.4
+const TIME_STOP_SEC = 1
+const TOTAL_CYCLE_TIME = TIME_STOP_SEC + TIME_MOVE_SEC
+
+class Level4 extends Level {
+    constructor(start_y) {
+        super(NUMBER_LINE_OF_ENEMIES * SPACE_BETWEEN_ENEMIES_VERTICAL, start_y);
+        this.start_height = start_y;
+
+        const oppositeDirection = Math.random() < 0.5 ? 0 : 1
+
+        this.enemies = new Set();
+        for (let i = 0; i < NUMBER_ENEMIES_PER_LINE; ++i){
+
+            for (let j = 0; j < NUMBER_LINE_OF_ENEMIES; j++) {
+                const odd = j%2 * oppositeDirection
+                this.enemies.add(
+                    new Enemy_line(-WIDTH + i * SPACE_BETWEEN_ENEMIES_HORIZONTAL,
+                        -start_y - j*SPACE_BETWEEN_ENEMIES_VERTICAL,
+                        odd * TOTAL_CYCLE_TIME,
+                        2 * WIDTH - (NUMBER_ENEMIES_PER_LINE - 1) * SPACE_BETWEEN_ENEMIES_HORIZONTAL,
+                        0,
+                        TIME_STOP_SEC,
+                        TIME_MOVE_SEC)
+                );
+            }
+        }
+
+    }
+}
+
 // Random Level Selector
 export function randomLevel(start_y) {
-    const listLevels = [Level1, Level2, Level3]; // Add more levels here as you define them
+    //const listLevels = [Level4]
+    const listLevels = [Level1, Level2, Level3, Level4]; // Add more levels here as you define them
     return new listLevels[Math.floor(Math.random() * listLevels.length)](start_y);
 }
 

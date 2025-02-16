@@ -193,22 +193,22 @@ export class Game {
 
     // Update method called on each frame to handle game logic and rendering
     update(frame) {
-        // Current time in milliseconds since the start
+        // Current time in seconds since the start
         const now = frame.time;
 
         // Calculate the time difference since the last frame
-        let diff_time = now - this.old_time;
+        let diff_time_S = now - this.old_time;
         this.old_time = now;
 
         // If it's the first frame, reset the time difference to avoid large jumps
         if (this.firstFrame){
-            diff_time = 0;
+            diff_time_S = 0;
             this.firstFrame = false;
         }
 
         // Update the level controller with the elapsed time
-        this.levelController.update(diff_time, this.player.getPosition()[1]);
-        this.player.update(diff_time);
+        this.levelController.update(diff_time_S, this.player.getRelativePosition()[1]);
+        this.player.update(diff_time_S);
 
         // Display the debug overlay
         this.updateDebugInfo();
@@ -246,11 +246,11 @@ export class Game {
                         this.screenManager.getTransformMatrix(), 
                         this.levelController.getBackgroundMatrix());
         
-        const propertiesbackground = {
+        const propertiesBackground = {
             transform: transformation2,
             color: COLORS.blueSky.slice(0, 3),
         }
-        //this.drawBackground(propertiesbackground);
+        this.drawBackground(propertiesBackground);
     }
 
     // Update method to set debug info
