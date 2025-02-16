@@ -2,11 +2,9 @@
 import { Background } from "./background.js";
 import { mat3 } from "../lib/gl-matrix/index.js";
 import { randomLevel } from "./level.js";
-import { HEIGHT } from "./ScreenManager.js";
+import {HEIGHT, WIDTH} from "./ScreenManager.js";
 
 
-// Constants
-const DISTANCE_ENEMIES = 0.3;             // Distance between enemies to spawn
 const SPEED_FALLING_BEGINNING = 50;        // Initial falling speed
 const ACCELERATION_FALLING = 3;            // Acceleration of falling speed (set to 0 for constant speed)
 const SPACE_BETWEEN_LEVELS = 3.6;
@@ -15,13 +13,12 @@ export class LevelController {
     constructor() {
         this.enemies = new Set([]);                     // Array to hold enemy instances
         this.clearEnemies();                   // Initialize enemies array
-        //this.oldDisplacement = 0;              // Track cumulative displacement
-        //this.totalTime = 0;                    // Total elapsed time
         this.speed = Math.log(SPEED_FALLING_BEGINNING); // Initial speed based on logarithm
-        //this.score = 0;                        // Score based on displacement, how far the player can go
-        
+
         this.background = new Background();
         this.restart();                        // Restart the level
+
+        this.numberLevel = 0
     }
 
     /**
@@ -61,7 +58,7 @@ export class LevelController {
             }
         });
 
-        this.background.update(displacementY);
+        this.background.update(displacementY, diffTimeS);
 
         // Update the cumulative displacement
         this.oldDisplacement += displacementY;
@@ -86,7 +83,7 @@ export class LevelController {
     *allEnemies() { for (const level of this.levels) { yield* level.getEnemies(); }}
 
     updateScore(playerHeight){
-        const newScore = 1000 * (this.oldDisplacement - playerHeight + HEIGHT);
+        const newScore = 100 * (this.oldDisplacement - playerHeight + HEIGHT);
 
         if (newScore > this.score){
             this.score = newScore;
@@ -106,26 +103,15 @@ export class LevelController {
 
     /**
      * Update the enemy list by adding new enemies based on displacement.
-     * @param {number} displacementY - The vertical displacement since the last update
+     * @param {number} totalDisplacement - The vertical displacement since the last update
      */
     updateSetLevel(totalDisplacement) {
         this.cleanLevel();
-        if (totalDisplacement < this.levelEnd){
+
+        if (totalDisplacement + 2*HEIGHT > this.levelEnd){
+            this.numberLevel++
             this.addLevel();
         }
-    }
-
-    /**
-     * Calculate the number of new enemies to add based on displacement.
-     * @param {number} displacementY - The vertical displacement since the last update
-     * @returns {number} Number of new enemies to add
-     */
-    getNumberOfNewEnemies(displacementY) {
-        const newAmountEnemy = Math.floor((this.oldDisplacement + displacementY) / DISTANCE_ENEMIES);
-        const oldAmountEnemy = Math.floor(this.oldDisplacement / DISTANCE_ENEMIES);
-        const enemiesToAdd = newAmountEnemy - oldAmountEnemy;
-
-        return enemiesToAdd;
     }
 
     getBackgroundMatrix() {
@@ -147,7 +133,7 @@ export class LevelController {
 
             // Check for collision between the player and the enemy
             if (collision_callback(ennemie)) {
-                // If collision occurs, trigger the lose condition
+                // If collision occurs, trigger the loose condition
                 lose_callback();
             }
         });

@@ -48,10 +48,11 @@ const frameVert = [
     [c, -c],
 ]
 
-
 export function createDrawSquare(regl, shaders, texture){
     return createDrawTexture(regl, texture, squareVert, shaders["texture.vert.glsl"], shaders["texture.frag.glsl"], 6)
 }
+
+
 
 export function createDrawTriangle(regl, shaders, texture){
     return createDrawTexture(regl, texture, triangleVert, shaders["texture.vert.glsl"], shaders["texture.frag.glsl"], 3)
@@ -70,8 +71,7 @@ function createDrawTexture(regl, texture, position, vert, frag, count){
             position: position,
         },
         uniforms: {
-            // Uniform variables for color and transformation matrix
-            color: regl.prop("color"),
+            // Uniform variables for transformation matrix
             transform: regl.prop("transform"),
             texture: texture
         },

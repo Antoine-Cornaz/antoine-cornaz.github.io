@@ -237,7 +237,8 @@ export class Game {
         this.drawPlayer(propertiesPlayer);
 
         this.levelController.draw(this.screenManager.getTransformMatrix(),
-                                    this.drawEnemie, this.lose.bind(this),
+                                    this.drawEnemie,
+                                    this.lose.bind(this),
                                     this.player.checkCollision.bind(this.player));
         
 
