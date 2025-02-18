@@ -7,8 +7,6 @@ const HALF_PLAYER_HEIGHT = 0.90;
 const HALF_PLAYER_DEFAULT_WIDTH = HALF_PLAYER_HEIGHT/OPTIMAL_RATIO;
 const PLAYER_COLOR = COLORS.floor.slice(0, 3)
 
-// number of vitesse to keep in memory
-const LAST_VITESSE_RECORD = 10
 
 export class Player extends Displayed{
 
@@ -49,12 +47,12 @@ export class Player extends Displayed{
         const position_y = this.getRelativePosition()[1]
         const old_position_y = this.old_position_y
         this.old_position_y = position_y
-        let new_vitess_y = (position_y - old_position_y)/diff_time
+        let new_speed_y = (position_y - old_position_y)/diff_time
 
 
         const alpha = 4
         const beta = Math.min(diff_time*alpha, 0.6)
-        this.vitesse_y = (this.vitesse_y * (1-beta)) + (new_vitess_y * beta)
+        this.vitesse_y = (this.vitesse_y * (1-beta)) + (new_speed_y * beta)
 
 
         let width = HALF_PLAYER_DEFAULT_WIDTH*3/4 + this.vitesse_y/30
@@ -63,12 +61,14 @@ export class Player extends Displayed{
     }
 
 
-    checkCollision(enemy){
+    checkCollision(enemy, cameraPosition){
         const playerPosition = this.getRelativePosition()
-        const obstaclePosition = enemy.getAbsolutePosition()
+        let obstaclePosition = enemy.getRelativePosition()
+        const finalPosition = vec2.create()
+        vec2.add(finalPosition, obstaclePosition, cameraPosition)
 
-        const diff_x = Math.abs(playerPosition[0] - obstaclePosition[0])
-        const diff_y = Math.abs(playerPosition[1] - obstaclePosition[1])
+        const diff_x = Math.abs(playerPosition[0] - finalPosition[0])
+        const diff_y = Math.abs(playerPosition[1] - finalPosition[1])
 
         const total_height = enemy.getHeight() + this.getHeight()
         const total_width = enemy.getWidth() + this.getWidth()
@@ -78,7 +78,7 @@ export class Player extends Displayed{
             return false
         }
         
-        const y_increase = obstaclePosition[1] - playerPosition[1]
+        const y_increase = finalPosition[1] - playerPosition[1]
 
         if (OPTIMAL_RATIO*2*diff_x - y_increase >= 3*enemy.getHeight() + this.getHeight()){
             return false

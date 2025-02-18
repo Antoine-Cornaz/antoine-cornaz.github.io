@@ -1,23 +1,27 @@
 // Import the Enemy class from enemy.js
 import { Background } from "./background.js";
-import { mat3 } from "../lib/gl-matrix/index.js";
+import {mat3, vec2} from "../lib/gl-matrix/index.js";
 import { randomLevel } from "./level.js";
 import {HEIGHT, WIDTH} from "./ScreenManager.js";
 
 
 const SPEED_FALLING_BEGINNING = 50;        // Initial falling speed
 const ACCELERATION_FALLING = 3;            // Acceleration of falling speed (set to 0 for constant speed)
-const SPACE_BETWEEN_LEVELS = 3.6;
+const SPACE_BETWEEN_LEVELS = 7;
+
+export let START_TIME = undefined;
 
 export class LevelController {
-    constructor() {
+    constructor(camera) {
+
+        this.camera = camera
+        console.log("camera", this.camera.getPosition())
+
         this.enemies = new Set([]);                     // Array to hold enemy instances
         this.clearEnemies();                   // Initialize enemies array
         this.speed = Math.log(SPEED_FALLING_BEGINNING); // Initial speed based on logarithm
 
         this.background = new Background();
-        this.restart();                        // Restart the level
-
         this.numberLevel = 0
     }
 
@@ -30,10 +34,11 @@ export class LevelController {
         this.totalTime = 0;
         this.score = 0;
         this.background.reset();
+        this.camera.reset()
         this.levels = new Set([]);
-        this.levelEnd = HEIGHT;
+        this.levelStartNext = HEIGHT;
+        START_TIME = Date.now();
         this.addLevel();
-        
     }
 
     /**
@@ -53,29 +58,34 @@ export class LevelController {
         // Update each enemy's position and remove it if it's above the screen
         this.allEnemies().forEach(enemy => {
             enemy.update(displacementY, diffTimeS);
-            if (enemy.isAboveScreen()) {
-                this.enemies.delete(enemy);
-            }
         });
 
         this.background.update(displacementY, diffTimeS);
 
+        this.camera.update(displacementY, diffTimeS)
+
         // Update the cumulative displacement
         this.oldDisplacement += displacementY;
-        this.updateSetLevel(this.oldDisplacement);
+        //console.log("displacementY", this.oldDisplacement);
+        this.updateSetLevel();
+
         this.updateScore(playerHeightPosition);
     }
 
     addLevel(){
-        const level = randomLevel(this.levelEnd);
+
+        const level = randomLevel(this.levelStartNext);
+        console.log("add level", level.getStartY(), level.getEndY());
         this.levels.add(level);
-        this.levelEnd = level.getEndY() + SPACE_BETWEEN_LEVELS;
+        this.levelStartNext = level.getEndY() + SPACE_BETWEEN_LEVELS;
     }
 
-    cleanLevel(){
+    cleanLevel() {
         for (const level of this.levels){
-            if (level.getEndY() < -1.5){
+            const l = level.getEndY();
+            if (l + HEIGHT < this.oldDisplacement){
                 this.levels.delete(level);
+                console.log("delete level")
             }
         }
     }
@@ -103,36 +113,40 @@ export class LevelController {
 
     /**
      * Update the enemy list by adding new enemies based on displacement.
-     * @param {number} totalDisplacement - The vertical displacement since the last update
      */
-    updateSetLevel(totalDisplacement) {
-        this.cleanLevel();
+    updateSetLevel() {
+        //this.cleanLevel();
 
-        if (totalDisplacement + 2*HEIGHT > this.levelEnd){
+        if (this.oldDisplacement + 4*HEIGHT > this.levelStartNext){
             this.numberLevel++
             this.addLevel();
         }
     }
 
     getBackgroundMatrix() {
-        return this.background.getTransform();
+        return this.background.getTransform(vec2.fromValues(0, 0));
     }
 
     draw(screenManagerMatrix, drawEnemy, lose_callback, collision_callback) {
-        this.allEnemies().forEach((ennemie) => {
+
+        const positionCamera = this.camera.getPosition()
+        console.log(positionCamera)
+
+
+        this.allEnemies().forEach((enemy) => {
             // Define properties for the enemy's rendering
             let transformation = mat3.create();
-            mat3.multiply(transformation, screenManagerMatrix, ennemie.getTransform());
-            const propertiesEnnemie = {
-                color: ennemie.getColor(),
+            mat3.multiply(transformation, screenManagerMatrix, enemy.getTransform(positionCamera));
+            const propertiesEnemy = {
+                color: enemy.getColor(),
                 transform: transformation,
             };
 
             // Draw the enemy using the defined draw command
-            drawEnemy(propertiesEnnemie);
+            drawEnemy(propertiesEnemy);
 
             // Check for collision between the player and the enemy
-            if (collision_callback(ennemie)) {
+            if (collision_callback(enemy)) {
                 // If collision occurs, trigger the loose condition
                 lose_callback();
             }

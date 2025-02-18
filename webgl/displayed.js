@@ -45,25 +45,29 @@ export class Displayed {
         return this.position;
     }
 
-    getAbsolutePosition() {
-        return vec2.fromValues(this.position[0], this.position[1] + this.screenMovingY)
-    }
-
     /**
      * Get the transformation matrix for rendering.
+     * @param {vec2} positionCamera - Camera position (default: [0, 0])
      * @returns {mat3} Transformation matrix
      */
-    getTransform() {
+    getTransform(positionCamera = vec2.fromValues(0, 0)) {
         const matrix = mat3.create();
-        //mat3.translate(matrix, matrix, this.position);
-        const pos = this.getAbsolutePosition();
-        mat3.fromTranslation(matrix, pos)
+        const pos = this.getRelativePosition();
+
+        // Compute final position
+        const finalPos = vec2.create();
+        vec2.add(finalPos, pos, positionCamera);
+
+        // Apply transformations
+        mat3.fromTranslation(matrix, finalPos);
         mat3.scale(matrix, matrix, vec2.fromValues(this.width, this.height));
+
         return matrix;
     }
 
+
     update(displacement_y, diffTime){
-        this.screenMovingY += displacement_y*this.rising
+
     }
 
     /**
@@ -96,13 +100,5 @@ export class Displayed {
      */
     getHeight() {
         return this.height;
-    }
-
-    /**
-     * Check if the object is above the screen boundary.
-     * @returns {boolean} True if above the screen, else false
-     */
-    isAboveScreen() {
-        return this.position[1] > 1.5;
     }
 }

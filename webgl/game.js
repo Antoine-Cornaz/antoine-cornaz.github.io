@@ -9,6 +9,7 @@ import { LevelController } from "./levelController.js"; // Level management
 import { ScreenManager } from "./ScreenManager.js";
 import { mat3 } from "../lib/gl-matrix/index.js";
 import { createDrawFrame, createDrawSquare, createDrawTriangle } from "./draw.js";
+import { Camera } from "./camera.js";
 
 // Game class encapsulates the entire game logic and rendering
 export class Game {
@@ -29,8 +30,10 @@ export class Game {
         // Reference to the frame loop for starting/stopping the game
         this.frameLoop = null;
 
+        this.camera = new Camera()
+
         // Level controller to manage game levels and enemies
-        this.levelController = new LevelController();
+        this.levelController = new LevelController(this.camera);
 
         // Flag to indicate if it's the first frame
         this.firstFrame = true;
@@ -39,8 +42,6 @@ export class Game {
         this.stop = false;
 
         this.texture_hen = null;
-        this.texture_player = null;
-        this.texture_background = null;
     }
 
     // Initialize the game by loading resources and setting up the environment
@@ -239,7 +240,7 @@ export class Game {
         this.levelController.draw(this.screenManager.getTransformMatrix(),
                                     this.drawEnemie,
                                     this.lose.bind(this),
-                                    this.player.checkCollision.bind(this.player));
+            (other) => this.player.checkCollision(other, this.camera.getPosition()));
         
 
         let transformation2 = mat3.create();

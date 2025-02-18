@@ -4,7 +4,6 @@ import {Enemy_circle} from "./enemy_circle.js";
 import {Enemy_line} from "./enemy_line.js";
 
 // Level Constants
-const SIZE_LEVEL_1 = 28.8;
 const NORMAL_SPACE_ENEMIES_CLOSE = 2.2;
 const NORMAL_SPACE_ENEMIES_FAR = 7.2;
 const NUMBER_ENEMIES_START = 3;
@@ -12,7 +11,6 @@ const NUMBER_ENEMIES_SINUS = 8;
 const NUMBER_ENEMIES_CIRCLE = 16;
 const RADIUS_ENEMIES_CIRCLE = 8.4;
 const ANGULAR_VELOCITY = -0.6
-const EXTRA_MARGE_LVL3 = 2;
 
 // Utility function to create an array of enemies at specific positions
 function createEnemies(positions, start_y, size = 1) {
@@ -34,15 +32,19 @@ class Level {
             throw new Error("Abstract classes can't be instantiated.");
         }
         this.size = size;
-        this.start_height = start_y;
+        this.start_y = start_y;
     }
 
     getSize() {
         return this.size;
     }
 
+    getStartY() {
+        return this.start_y
+    }
+
     getEndY() {
-        return this.start_height + this.size;
+        return this.start_y + this.size;
     }
 
     getEnemies() {
@@ -53,7 +55,7 @@ class Level {
 // Level 1 Class
 class Level1 extends Level {
     constructor(start_y) {
-        super(SIZE_LEVEL_1, start_y);
+        super(3 * NORMAL_SPACE_ENEMIES_FAR, start_y);
 
         const enemyByRow = Math.floor(Math.random() * 3 + 2);
         const enemyRows = [
@@ -70,7 +72,7 @@ class Level1 extends Level {
 // Level 2 Class
 class Level2 extends Level {
     constructor(start_y) {
-        super((NUMBER_ENEMIES_START + NUMBER_ENEMIES_SINUS) * NORMAL_SPACE_ENEMIES_CLOSE, start_y);
+        super((NUMBER_ENEMIES_START + NUMBER_ENEMIES_SINUS-1) * NORMAL_SPACE_ENEMIES_CLOSE, start_y);
 
         this.enemies = new Set();
 
@@ -101,7 +103,7 @@ class Level2 extends Level {
 // Level 3 Class
 class Level3 extends Level {
     constructor(start_y) {
-        super(RADIUS_ENEMIES_CIRCLE * 2 + EXTRA_MARGE_LVL3, start_y);
+        super(RADIUS_ENEMIES_CIRCLE * 2, start_y);
 
         // Create circular enemies, skipping two to allow player pass
         const enemyPositions = Array.from({ length: NUMBER_ENEMIES_CIRCLE }).map((_, i) => {
@@ -124,20 +126,19 @@ const TOTAL_CYCLE_TIME = TIME_STOP_SEC + TIME_MOVE_SEC
 
 class Level4 extends Level {
     constructor(start_y) {
-        super(NUMBER_LINE_OF_ENEMIES * SPACE_BETWEEN_ENEMIES_VERTICAL, start_y);
-        this.start_height = start_y;
+        super((NUMBER_LINE_OF_ENEMIES - 1) * SPACE_BETWEEN_ENEMIES_VERTICAL, start_y);
 
         const oppositeDirection = Math.random() < 0.5 ? 0 : 1
 
         this.enemies = new Set();
         for (let i = 0; i < NUMBER_ENEMIES_PER_LINE; ++i){
-
             for (let j = 0; j < NUMBER_LINE_OF_ENEMIES; j++) {
-                const odd = j%2 * oppositeDirection
+
+                const startLeft = j%2 * oppositeDirection
                 this.enemies.add(
                     new Enemy_line(-WIDTH + i * SPACE_BETWEEN_ENEMIES_HORIZONTAL,
                         -start_y - j*SPACE_BETWEEN_ENEMIES_VERTICAL,
-                        odd * TOTAL_CYCLE_TIME,
+                        startLeft * TOTAL_CYCLE_TIME,
                         2 * WIDTH - (NUMBER_ENEMIES_PER_LINE - 1) * SPACE_BETWEEN_ENEMIES_HORIZONTAL,
                         0,
                         TIME_STOP_SEC,
@@ -151,8 +152,8 @@ class Level4 extends Level {
 
 // Random Level Selector
 export function randomLevel(start_y) {
-    //const listLevels = [Level4]
-    const listLevels = [Level1, Level2, Level3, Level4]; // Add more levels here as you define them
+    //const listLevels = [Level3]
+    const listLevels = [Level1, Level2, Level3, Level4];
     return new listLevels[Math.floor(Math.random() * listLevels.length)](start_y);
 }
 

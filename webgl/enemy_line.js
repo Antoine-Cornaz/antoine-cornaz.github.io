@@ -34,7 +34,8 @@ export class Enemy_line extends Enemy{
             alpha = 0
         }else if (this.t - this.timeStop / 2 <  this.timeMove){
             // alpha between 0 and 1
-            alpha = (this.t - this.timeStop / 2) / this.timeMove
+            const x = (this.t - this.timeStop / 2) / this.timeMove
+            alpha = sinusTransition(x)
         }else {
             alpha = 1
         }
@@ -47,4 +48,8 @@ export class Enemy_line extends Enemy{
 
     }
 
+}
+
+function sinusTransition(x){
+    return (1 + Math.sin(Math.PI * (x-1/2)))/2
 }

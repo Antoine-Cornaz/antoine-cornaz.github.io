@@ -12,6 +12,4 @@ export class Background extends Displayed{
         this.position = vec2.fromValues(0, 0);
     }
 
-
-
 }
