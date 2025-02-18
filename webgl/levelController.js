@@ -124,7 +124,7 @@ export class LevelController {
     }
 
     getBackgroundMatrix() {
-        return this.background.getTransform(vec2.fromValues(0, 0));
+        return this.background.getTransform(this.camera.getPosition());
     }
 
     draw(screenManagerMatrix, drawEnemy, lose_callback, collision_callback) {

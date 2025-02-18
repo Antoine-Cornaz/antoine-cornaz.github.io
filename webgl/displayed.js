@@ -14,7 +14,7 @@ export class Displayed {
         this.width = width;                      // Width of the object
         this.height = height;                    // Height of the object
         this.color = color || [0.4, 0.7, 0.2];   // Default color if none provided
-        this.rising = rising;
+        this.rising_speed = rising;
 
         this.position = vec2.fromValues(0, 0);  // Initial position at the origin, need to be changed by subclass
         this.screenMovingY = 0
@@ -55,8 +55,9 @@ export class Displayed {
         const pos = this.getRelativePosition();
 
         // Compute final position
-        const finalPos = vec2.create();
-        vec2.add(finalPos, pos, positionCamera);
+        const finalPos = vec2.fromValues(pos[0] + positionCamera[0],
+            pos[1] + positionCamera[1] * this.rising_speed);
+
 
         // Apply transformations
         mat3.fromTranslation(matrix, finalPos);
@@ -67,7 +68,7 @@ export class Displayed {
 
 
     update(displacement_y, diffTime){
-
+        // Do nothing, is override for movement
     }
 
     /**

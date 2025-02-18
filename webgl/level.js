@@ -91,8 +91,8 @@ class Level2 extends Level {
             const x = Math.sin(i / NUMBER_ENEMIES_SINUS * 2 * Math.PI + 0.3) * 5;
             const y = -start_y - (NUMBER_ENEMIES_START + i) * NORMAL_SPACE_ENEMIES_CLOSE;
             return [
-                new Enemy(x + 10.35 / 2, y),
-                new Enemy(x - 10.35 / 2, y)
+                new Enemy(x + 12.35 / 2, y),
+                new Enemy(x - 12.35 / 2, y)
             ];
         }).flat();
 

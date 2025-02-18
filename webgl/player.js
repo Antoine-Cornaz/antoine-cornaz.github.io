@@ -5,13 +5,12 @@ import { OPTIMAL_RATIO } from "./ScreenManager.js";
 
 const HALF_PLAYER_HEIGHT = 0.90;
 const HALF_PLAYER_DEFAULT_WIDTH = HALF_PLAYER_HEIGHT/OPTIMAL_RATIO;
-const PLAYER_COLOR = COLORS.floor.slice(0, 3)
 
 
 export class Player extends Displayed{
 
     constructor(){
-        super(HALF_PLAYER_DEFAULT_WIDTH, HALF_PLAYER_HEIGHT, PLAYER_COLOR, 0);
+        super(HALF_PLAYER_DEFAULT_WIDTH, HALF_PLAYER_HEIGHT, null, 0);
         this.reset()
         this.old_position_y = 0
         this.vitesse_y = 0
@@ -20,7 +19,6 @@ export class Player extends Displayed{
 
     reset(){
         this.setRelativePosition(vec2.fromValues(0.2, 0.4))
-        this.setColors(PLAYER_COLOR)
     }
 
     /**
