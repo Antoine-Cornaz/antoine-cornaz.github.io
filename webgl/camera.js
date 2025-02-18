@@ -1,4 +1,4 @@
-import {vec2} from "../lib/gl-matrix";
+import {vec2} from "../lib/gl-matrix/index.js";
 
 
 export class Camera {
