@@ -83,7 +83,10 @@ export class LevelController {
     cleanLevel() {
         for (const level of this.levels){
             const l = level.getEndY();
-            if (l + HEIGHT < this.oldDisplacement){
+
+            // 2*HEIGHT to be sure levels totally above screen.
+            // 1*HEIGHT + epsilon should be enough
+            if (l + 2*HEIGHT < this.oldDisplacement){
                 this.levels.delete(level);
                 console.log("delete level")
             }
@@ -115,7 +118,7 @@ export class LevelController {
      * Update the enemy list by adding new enemies based on displacement.
      */
     updateSetLevel() {
-        //this.cleanLevel();
+        this.cleanLevel();
 
         if (this.oldDisplacement + 4*HEIGHT > this.levelStartNext){
             this.numberLevel++
@@ -123,16 +126,13 @@ export class LevelController {
         }
     }
 
-    getBackgroundMatrix() {
-        return this.background.getTransform(this.camera.getPosition());
-    }
+    draw(screenManagerMatrix, drawEnemy, lose_callback, collision_callback, drawBackground) {
 
-    draw(screenManagerMatrix, drawEnemy, lose_callback, collision_callback) {
+
+        // Draw background first
+        this.background.draw(drawBackground, this.camera.getPosition())
 
         const positionCamera = this.camera.getPosition()
-        console.log(positionCamera)
-
-
         this.allEnemies().forEach((enemy) => {
             // Define properties for the enemy's rendering
             let transformation = mat3.create();
@@ -151,5 +151,7 @@ export class LevelController {
                 lose_callback();
             }
         });
+
+
     }
 }

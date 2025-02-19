@@ -76,6 +76,18 @@ function createDrawTexture(regl, texture, position, vert, frag, count){
             texture: texture
         },
         count: count, // Number of vertices
+        depth: {
+            enable: false, // Disable depth testing to avoid artifacts
+        },
+        blend: {
+            enable: true,
+            func: {
+                srcRGB: 'src alpha',
+                srcAlpha: 'src alpha',
+                dstRGB: 'one minus src alpha',
+                dstAlpha: 'one minus src alpha'
+            }
+        },
     }
 }
 

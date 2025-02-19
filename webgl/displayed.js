@@ -51,18 +51,18 @@ export class Displayed {
      * @returns {mat3} Transformation matrix
      */
     getTransform(positionCamera = vec2.fromValues(0, 0)) {
-        const matrix = mat3.create();
-        const pos = this.getRelativePosition();
 
         // Compute final position
+        const pos = this.getRelativePosition();
         const finalPos = vec2.fromValues(pos[0] + positionCamera[0],
             pos[1] + positionCamera[1] * this.rising_speed);
 
 
         // Apply transformations
-        mat3.fromTranslation(matrix, finalPos);
-        mat3.scale(matrix, matrix, vec2.fromValues(this.width, this.height));
+        const matrix = mat3.create();
 
+        mat3.fromTranslation(matrix, finalPos);
+        mat3.scale(matrix, matrix, vec2.fromValues(this.width, this.height))
         return matrix;
     }
 

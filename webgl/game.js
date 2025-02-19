@@ -219,12 +219,7 @@ export class Game {
             color: COLORS.blueSky,
         });
 
-        // Draw the frame
-        const propertiesFrame = {
-            transform: this.screenManager.getTransformMatrix(),
-            color: COLORS.sea.slice(0, 3),
-        };
-        this.drawFrame(propertiesFrame);
+
 
         // Define properties for the player's rendering
         let transformation = mat3.create();
@@ -234,25 +229,24 @@ export class Game {
             color: this.player.getColor(),
         };
 
+
+
+        this.levelController.draw(this.screenManager.getTransformMatrix(),
+            this.drawEnemie,
+            this.lose.bind(this),
+            (other) => this.player.checkCollision(other, this.camera.getPosition()),
+            this.drawBackground);
+
         // Draw the player using the defined draw command
         this.drawPlayer(propertiesPlayer);
 
-        this.levelController.draw(this.screenManager.getTransformMatrix(),
-                                    this.drawEnemie,
-                                    this.lose.bind(this),
-            (other) => this.player.checkCollision(other, this.camera.getPosition()));
-        
 
-        let transformation2 = mat3.create();
-        mat3.multiply(transformation2, 
-                        this.screenManager.getTransformMatrix(), 
-                        this.levelController.getBackgroundMatrix());
-        
-        const propertiesBackground = {
-            transform: transformation2,
-            color: COLORS.blueSky.slice(0, 3),
-        }
-        this.drawBackground(propertiesBackground);
+        // Draw the frame
+        const propertiesFrame = {
+            transform: this.screenManager.getTransformMatrix(),
+            color: COLORS.sea.slice(0, 3),
+        };
+        this.drawFrame(propertiesFrame);
     }
 
     // Update method to set debug info

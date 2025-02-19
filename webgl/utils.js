@@ -13,3 +13,7 @@ function loadImageAndCreateTexture(regl, src) {
         image.onerror = (err) => reject(err);
     });
 }
+
+export function uniformRandom(min, max) {
+    return Math.random() * (max - min) + min;
+}
